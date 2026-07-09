@@ -1,0 +1,30 @@
+{
+  "contentBuckets": [
+    "finished projects",
+    "in-progress projects",
+    "hardware projects",
+    "code projects",
+    "hybrid projects",
+    "GitHub repositories",
+    "tutorials",
+    "reviews",
+    "build logs"
+  ],
+  "projectTypes": [
+    {
+      "key": "hardware",
+      "title": "Hardware Projects",
+      "description": "Physical builds, electronics, and embedded prototypes."
+    },
+    {
+      "key": "code",
+      "title": "Code Projects",
+      "description": "Software products, tools, and platform engineering work."
+    },
+    {
+      "key": "hybrid",
+      "title": "Hybrid Projects",
+      "description": "Systems blending software and hardware experiences."
+    }
+  ]
+}

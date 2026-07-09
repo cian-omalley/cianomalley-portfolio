@@ -1,0 +1,25 @@
+{
+  "brand": {
+    "name": "Cian O'Malley",
+    "primaryDomain": "cianomalley.works",
+    "docsAndDemosDomain": "cianomalley.dev"
+  },
+  "sections": [
+    "Home",
+    "Projects",
+    "GitHub",
+    "Blog",
+    "About",
+    "Contact",
+    "CV download"
+  ],
+  "heroNavigation": [
+    { "landmark": "Projects Tower", "route": "/projects", "type": "finished-and-in-progress" },
+    { "landmark": "GitHub Nexus", "route": "/github", "type": "repositories" },
+    { "landmark": "Hardware Lab", "route": "/projects/hardware", "type": "hardware-projects" },
+    { "landmark": "Blog Archive", "route": "/blog", "type": "tutorials-and-reviews" },
+    { "landmark": "Workshop District", "route": "/projects/hybrid", "type": "hybrid-projects" },
+    { "landmark": "Contact Terminal", "route": "/contact", "type": "contact" },
+    { "landmark": "CV Vault", "route": "/cv", "type": "cv-download" }
+  ]
+}
