@@ -1,2 +1,18 @@
 # cianomalley-portfolio
-Interactive 3D cyberpunk portfolio for cianomalley.works, showcasing software, hardware, GitHub repositories, blog posts, tutorials, reviews, and technical projects.
+
+Foundation for an interactive 3D cyberpunk portfolio for **Cian O'Malley**.
+
+## Domains
+- Production portfolio: `cianomalley.works`
+- Demos + documentation: `cianomalley.dev`
+
+## Included foundation
+- Project structure for data models, components, docs, and tests
+- Content models for navigation, hero landmarks, and portfolio categories
+- Example cyberpunk city hero component (`src/components/CyberpunkCityHero.jsx`)
+- Setup guide (`docs/SETUP.md`)
+
+## Validate
+```bash
+npm test
+```
