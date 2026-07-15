@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="170" viewBox="0 0 1080 170" role="img" aria-label="Design token palette: void black, dark surface, deep purple, electric violet, violet 300, moon silver, soft white, muted text, cyan signal, warning red">
+  <rect width="1080" height="170" rx="12" fill="#040805"/>
+  <text x="24" y="34" font-family="'Space Grotesk','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="700" letter-spacing="4" fill="#C8CDD8">DESIGN TOKENS — VISUAL IDENTITY</text>
+
+  <g font-family="'JetBrains Mono',ui-monospace,monospace" text-anchor="middle">
+    <!-- swatch template: rect y=52 h=56, label y=126, hex y=144 -->
+    <rect x="24"  y="52" width="88" height="56" rx="8" fill="#040805" stroke="#89919E" stroke-width="1"/>
+    <text x="68"  y="126" font-size="11" fill="#C8CDD8">void</text>
+    <text x="68"  y="144" font-size="11" fill="#89919E">#040805</text>
+
+    <rect x="130" y="52" width="88" height="56" rx="8" fill="#0B1010" stroke="#89919E" stroke-width="1"/>
+    <text x="174" y="126" font-size="11" fill="#C8CDD8">surface</text>
+    <text x="174" y="144" font-size="11" fill="#89919E">#0B1010</text>
+
+    <rect x="236" y="52" width="88" height="56" rx="8" fill="#3A006F"/>
+    <text x="280" y="126" font-size="11" fill="#C8CDD8">purple-deep</text>
+    <text x="280" y="144" font-size="11" fill="#89919E">#3A006F</text>
+
+    <rect x="342" y="52" width="88" height="56" rx="8" fill="#7C3AED"/>
+    <text x="386" y="126" font-size="11" fill="#C8CDD8">violet</text>
+    <text x="386" y="144" font-size="11" fill="#89919E">#7C3AED</text>
+
+    <rect x="448" y="52" width="88" height="56" rx="8" fill="#A78BFA"/>
+    <text x="492" y="126" font-size="11" fill="#C8CDD8">violet-300</text>
+    <text x="492" y="144" font-size="11" fill="#89919E">#A78BFA</text>
+
+    <rect x="554" y="52" width="88" height="56" rx="8" fill="#C8CDD8"/>
+    <text x="598" y="126" font-size="11" fill="#C8CDD8">silver-moon</text>
+    <text x="598" y="144" font-size="11" fill="#89919E">#C8CDD8</text>
+
+    <rect x="660" y="52" width="88" height="56" rx="8" fill="#F5F7FA"/>
+    <text x="704" y="126" font-size="11" fill="#C8CDD8">white-soft</text>
+    <text x="704" y="144" font-size="11" fill="#89919E">#F5F7FA</text>
+
+    <rect x="766" y="52" width="88" height="56" rx="8" fill="#89919E"/>
+    <text x="810" y="126" font-size="11" fill="#C8CDD8">muted</text>
+    <text x="810" y="144" font-size="11" fill="#89919E">#89919E</text>
+
+    <rect x="872" y="52" width="88" height="56" rx="8" fill="#22D3EE"/>
+    <text x="916" y="126" font-size="11" fill="#22D3EE">cyan-signal</text>
+    <text x="916" y="144" font-size="11" fill="#89919E">#22D3EE</text>
+
+    <rect x="978" y="52" width="88" height="56" rx="8" fill="#FF315B"/>
+    <text x="1022" y="126" font-size="11" fill="#FF315B">warning</text>
+    <text x="1022" y="144" font-size="11" fill="#89919E">#FF315B</text>
+  </g>
+</svg>
