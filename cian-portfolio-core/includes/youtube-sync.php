@@ -121,6 +121,64 @@ function cian_core_yt_map_video( array $item ): array {
 }
 
 /**
+ * Match tag strings against a name→id map (case-insensitive), splitting into
+ * matched term IDs and unmatched tag strings. Pure — no term is created here.
+ *
+ * @param array<int, string>       $tags
+ * @param array<string, int>       $name_to_id lowercase term name => term id.
+ * @return array{matched:array<int,int>, unmatched:array<int,string>}
+ */
+function cian_core_match_terms_by_name( array $tags, array $name_to_id ): array {
+	$matched   = array();
+	$unmatched = array();
+	foreach ( $tags as $tag ) {
+		$tag = trim( (string) $tag );
+		if ( '' === $tag ) {
+			continue;
+		}
+		$key = strtolower( $tag );
+		if ( isset( $name_to_id[ $key ] ) ) {
+			$matched[] = (int) $name_to_id[ $key ];
+		} else {
+			$unmatched[] = $tag;
+		}
+	}
+	return array(
+		'matched'   => array_values( array_unique( $matched ) ),
+		'unmatched' => array_values( array_unique( $unmatched ) ),
+	);
+}
+
+/**
+ * Assign a video's YouTube tags to existing `technology` terms. Never creates
+ * terms (docs/plan/04 §9) — unmatched tags are stored in meta for review.
+ *
+ * @param array<int, string> $tags
+ */
+function cian_core_yt_assign_tags( int $post_id, array $tags ): void {
+	if ( empty( $tags ) ) {
+		return;
+	}
+	$terms = get_terms( array( 'taxonomy' => 'technology', 'hide_empty' => false ) );
+	$map   = array();
+	if ( is_array( $terms ) ) {
+		foreach ( $terms as $t ) {
+			$map[ strtolower( $t->name ) ] = (int) $t->term_id;
+		}
+	}
+
+	$res = cian_core_match_terms_by_name( $tags, $map );
+	if ( ! empty( $res['matched'] ) ) {
+		wp_set_object_terms( $post_id, $res['matched'], 'technology', true );
+	}
+	if ( ! empty( $res['unmatched'] ) ) {
+		update_post_meta( $post_id, 'video_unmatched_tags', $res['unmatched'] );
+	} else {
+		delete_post_meta( $post_id, 'video_unmatched_tags' );
+	}
+}
+
+/**
  * Highest-resolution available thumbnail URL.
  *
  * @param array<string, mixed> $thumbnails
@@ -198,8 +256,13 @@ function cian_core_sync_upsert_video( array $m, bool $dry_run = false ) {
 	update_post_meta( $id, 'video_sync_status', 'Synced' );
 	update_post_meta( $id, 'video_last_synced', gmdate( 'Y-m-d H:i:s' ) );
 
-	// Thumbnail sideloading + tag→technology mapping are deferred (media
-	// sideload + term allowlist) — they run in the admin import flow.
+	// Map YouTube tags to existing technology terms (never auto-creates).
+	if ( ! empty( $m['tags'] ) ) {
+		cian_core_yt_assign_tags( $id, (array) $m['tags'] );
+	}
+
+	// Thumbnail sideloading is deferred to the admin import flow (media
+	// sideload + featured-image set).
 	return array( 'id' => $id, 'action' => $action );
 }
 

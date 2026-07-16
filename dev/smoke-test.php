@@ -256,6 +256,13 @@ ok( 'map: privacy', $m['privacy'] === 'public' );
 ok( 'map: not live', $m['is_live'] === false );
 ok( 'map: invalid id → empty', cian_core_yt_map_video( array( 'id' => 'bad' ) )['youtube_id'] === '' );
 
+$map = array( 'wordpress' => 12, 'oxygen builder' => 34 );
+$mt  = cian_core_match_terms_by_name( array( 'WordPress', 'Oxygen Builder', 'random tag', '  ' ), $map );
+ok( 'tag match: matched ids', $mt['matched'] === array( 12, 34 ) );
+ok( 'tag match: unmatched preserved', $mt['unmatched'] === array( 'random tag' ) );
+ok( 'tag match: case-insensitive', cian_core_match_terms_by_name( array( 'WORDPRESS' ), $map )['matched'] === array( 12 ) );
+ok( 'tag match: dedupes', cian_core_match_terms_by_name( array( 'WordPress', 'wordpress' ), $map )['matched'] === array( 12 ) );
+
 // ---- Summary ----------------------------------------------------------------
 echo "\n";
 if ( $FAIL === 0 ) {
