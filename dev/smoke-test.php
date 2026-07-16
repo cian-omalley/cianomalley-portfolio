@@ -65,6 +65,7 @@ function shortcode_atts( $defaults, $atts, $sc = '' ) { return array_merge( $def
 function get_the_ID() { return 1; }
 function get_the_title( $id = 0 ) { return 'Test'; }
 function get_the_post_thumbnail_url( $id = 0, $s = '' ) { return ''; }
+function sanitize_title( $s ) { return trim( preg_replace( '/[^a-z0-9]+/', '-', strtolower( (string) $s ) ), '-' ); }
 
 if ( ! defined( 'ABSPATH' ) ) { define( 'ABSPATH', __DIR__ . '/' ); }
 if ( ! defined( 'MINUTE_IN_SECONDS' ) ) { define( 'MINUTE_IN_SECONDS', 60 ); }
@@ -170,6 +171,90 @@ $co = cian_core_render_callout( 'Heads up', 'warning' );
 ok( 'warning callout class', strpos( $co, 'cian-callout--warning' ) !== false );
 
 ok( 'shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_video_facade'], $GLOBALS['__shortcodes']['cian_chapters'], $GLOBALS['__shortcodes']['cian_command'] ) );
+
+echo "\n-- guide step renderer --\n";
+
+$rows = array(
+	array( 'acf_fc_layout' => 'step_section', 'title' => 'Install the tools', 'body' => '<p>Do it.</p>' ),
+	array( 'acf_fc_layout' => 'command_block', 'code' => 'apt install nginx', 'language' => 'bash' ),
+	array( 'acf_fc_layout' => 'code_block', 'code' => "server {}", 'language' => 'nginx', 'filename' => 'site.conf' ),
+	array( 'acf_fc_layout' => 'warning_callout', 'body' => 'Back up first.' ),
+	array( 'acf_fc_layout' => 'step_section', 'title' => 'Verify' ),
+	array( 'acf_fc_layout' => 'download', 'file' => array( 'url' => 'https://x.test/c.zip', 'filename' => 'c.zip' ) ),
+);
+$steps = cian_core_render_guide_steps( $rows );
+ok( 'steps: section numbered', strpos( $steps, '<span class="cian-step__n">1</span>' ) !== false );
+ok( 'steps: second section is #2', strpos( $steps, '<span class="cian-step__n">2</span>' ) !== false );
+ok( 'steps: section anchored by slug', strpos( $steps, 'id="install-the-tools"' ) !== false );
+ok( 'steps: command block rendered', strpos( $steps, 'apt install nginx' ) !== false );
+ok( 'steps: code block filename', strpos( $steps, 'site.conf' ) !== false );
+ok( 'steps: warning callout', strpos( $steps, 'cian-callout--warning' ) !== false );
+ok( 'steps: download link', strpos( $steps, 'href="https://x.test/c.zip"' ) !== false );
+
+$toc = cian_core_render_guide_toc( $rows );
+ok( 'toc: only step sections (2 links)', substr_count( $toc, '<li>' ) === 2 );
+ok( 'toc: anchors match sections', strpos( $toc, '#install-the-tools' ) !== false && strpos( $toc, '#verify' ) !== false );
+
+ok( 'guide step shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_guide_steps'], $GLOBALS['__shortcodes']['cian_guide_toc'] ) );
+
+echo "\n-- review components --\n";
+
+ok( 'score fmt 8.0 → 8', cian_core_fmt_score( 8.0 ) === '8' );
+ok( 'score fmt 7.5 → 7.5', cian_core_fmt_score( 7.5 ) === '7.5' );
+
+$panel = cian_core_render_score_panel( 8.5, array( 'Design' => 9, 'Value' => 0, 'Performance' => 7.5 ) );
+ok( 'score panel shows overall', strpos( $panel, '>8.5<' ) !== false );
+ok( 'score panel has meter for scored', strpos( $panel, '<meter' ) !== false );
+ok( 'score panel skips 0 (Value)', strpos( $panel, 'Value' ) === false );
+ok( 'score panel clamps aria', strpos( $panel, 'Design: 9 out of 10' ) !== false );
+
+$pc = cian_core_render_pros_cons(
+	array( array( 'text' => 'Fast' ), array( 'text' => '' ) ),
+	array( 'Pricey' )
+);
+ok( 'pros/cons: pros column', strpos( $pc, 'Fast' ) !== false && strpos( $pc, 'cian-pros' ) !== false );
+ok( 'pros/cons: cons column (string item)', strpos( $pc, 'Pricey' ) !== false );
+ok( 'pros/cons: blank item skipped', substr_count( $pc, '<li>' ) === 2 );
+ok( 'pros/cons: empty → empty string', cian_core_render_pros_cons( array(), array() ) === '' );
+
+$spec = cian_core_render_spec_table( array( array( 'spec' => 'Weight', 'value' => '1.2kg' ), array( 'spec' => '' ) ) );
+ok( 'spec table: row rendered', strpos( $spec, '<th scope="row">Weight</th>' ) !== false );
+ok( 'spec table: blank spec skipped', substr_count( $spec, '<tr>' ) === 1 );
+
+ok( 'review shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_review_scores'], $GLOBALS['__shortcodes']['cian_pros_cons'], $GLOBALS['__shortcodes']['cian_spec_table'] ) );
+
+echo "\n-- youtube sync mapping --\n";
+
+ok( 'best thumbnail prefers maxres', cian_core_yt_best_thumbnail( array(
+	'default' => array( 'url' => 'd.jpg' ),
+	'maxres'  => array( 'url' => 'm.jpg' ),
+) ) === 'm.jpg' );
+ok( 'best thumbnail falls back', cian_core_yt_best_thumbnail( array( 'medium' => array( 'url' => 'med.jpg' ) ) ) === 'med.jpg' );
+ok( 'best thumbnail empty', cian_core_yt_best_thumbnail( array() ) === '' );
+
+$item = array(
+	'id'             => 'dQw4w9WgXcQ',
+	'snippet'        => array(
+		'title'        => 'Building with Oxygen 6',
+		'description'  => 'A guide.',
+		'publishedAt'  => '2026-01-15T10:00:00Z',
+		'channelTitle' => 'Cian O\'Malley',
+		'tags'         => array( 'oxygen', 'wordpress' ),
+		'thumbnails'   => array( 'high' => array( 'url' => 'h.jpg' ) ),
+	),
+	'contentDetails' => array( 'duration' => 'PT12M30S' ),
+	'status'         => array( 'privacyStatus' => 'public' ),
+);
+$m = cian_core_yt_map_video( $item );
+ok( 'map: youtube id sanitized', $m['youtube_id'] === 'dQw4w9WgXcQ' );
+ok( 'map: title', $m['title'] === 'Building with Oxygen 6' );
+ok( 'map: duration PT12M30S → 00:12:30', $m['duration'] === '00:12:30' );
+ok( 'map: publishedAt → date', $m['published'] === '2026-01-15' );
+ok( 'map: tags', $m['tags'] === array( 'oxygen', 'wordpress' ) );
+ok( 'map: thumbnail', $m['thumbnail'] === 'h.jpg' );
+ok( 'map: privacy', $m['privacy'] === 'public' );
+ok( 'map: not live', $m['is_live'] === false );
+ok( 'map: invalid id → empty', cian_core_yt_map_video( array( 'id' => 'bad' ) )['youtube_id'] === '' );
 
 // ---- Summary ----------------------------------------------------------------
 echo "\n";
