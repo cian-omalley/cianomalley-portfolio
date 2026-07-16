@@ -267,6 +267,7 @@ cianomalley-portfolio/
 │   ├── assets/js/src/        ← loader, world, menu, player, chapters, transcripts
 │   ├── acf-json/             ← version-controlled ACF field groups
 │   └── cli/                  ← wp cian youtube <subcommand>
+├── dev/                      ← 🐳 local Docker WordPress env + smoke test
 ├── .claude/                  ← project agents, skills, settings (Claude Code)
 └── CLAUDE.md                 ← project brief for Claude Code sessions
 ```
@@ -304,13 +305,17 @@ The complete 44-section design, technical, content, and implementation plan live
 
 ## Working in this repo
 
-This repo holds planning docs and the plugin source; the WordPress install lives on the server. To sanity-check the plugin locally:
+This repo holds planning docs and the plugin source; production WordPress lives on the server. For local work there's a throwaway Docker WordPress environment and a WordPress-free smoke test — see [`dev/`](dev/README.md):
 
 ```bash
-# PHP syntax on every plugin file
-find cian-portfolio-core -name '*.php' -print0 | xargs -0 -n1 php -l
+# Full local WordPress + MariaDB + Redis, plugin bind-mounted, then verify
+docker compose -f dev/docker-compose.yml up -d && ./dev/setup.sh
 
-# JS syntax on every module
+# No Docker needed — boots the plugin with WP stubs and asserts the data model
+php dev/smoke-test.php
+
+# Static checks
+find cian-portfolio-core -name '*.php' -print0 | xargs -0 -n1 php -l
 for f in cian-portfolio-core/assets/js/src/*.js; do node --check "$f"; done
 ```
 

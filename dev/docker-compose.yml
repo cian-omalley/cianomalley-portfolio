@@ -1,0 +1,80 @@
+# Local WordPress dev environment for cian-portfolio-core.
+# Brings up WordPress (PHP 8.3) + MariaDB + Redis, with the plugin bind-mounted
+# into wp-content/plugins so edits are live. See dev/README.md.
+#
+#   docker compose -f dev/docker-compose.yml up -d
+#   ./dev/setup.sh            # install WP + activate plugin + verify
+#
+# NOTE: ACF Pro is a paid plugin and is NOT bundled. The plugin's data model
+# (post types, taxonomies, custom tables, REST) works without it; the ACF
+# *fields* need ACF Pro dropped into dev/plugins/ (see dev/README.md).
+
+name: cian-portfolio-dev
+
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+
+  wordpress:
+    image: wordpress:php8.3-apache
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      # Dev constants: debug on; credentials come from the shell env (never
+      # committed). Empty CIAN_YT_API_KEY just disables sync (graceful).
+      WORDPRESS_CONFIG_EXTRA: |
+        define( 'WP_DEBUG', true );
+        define( 'WP_DEBUG_LOG', true );
+        define( 'WP_REDIS_HOST', 'redis' );
+        if ( getenv( 'CIAN_YT_API_KEY' ) ) { define( 'CIAN_YT_API_KEY', getenv( 'CIAN_YT_API_KEY' ) ); }
+    volumes:
+      - wp_core:/var/www/html
+      # Live-mount the plugin under test.
+      - ../cian-portfolio-core:/var/www/html/wp-content/plugins/cian-portfolio-core
+      # Drop ACF Pro (and any other) plugin zips-unzipped here to load them.
+      - ./plugins:/var/www/html/wp-content/plugins/_local
+
+  # One-shot / on-demand WP-CLI runner sharing WordPress's files + network.
+  wpcli:
+    image: wordpress:cli-php8.3
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wp_core:/var/www/html
+      - ../cian-portfolio-core:/var/www/html/wp-content/plugins/cian-portfolio-core
+    user: "33:33"
+    entrypoint: ["wp"]
+    command: ["--info"]
+
+volumes:
+  db_data:
+  wp_core:
