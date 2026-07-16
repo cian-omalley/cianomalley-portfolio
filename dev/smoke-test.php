@@ -197,6 +197,32 @@ ok( 'toc: anchors match sections', strpos( $toc, '#install-the-tools' ) !== fals
 
 ok( 'guide step shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_guide_steps'], $GLOBALS['__shortcodes']['cian_guide_toc'] ) );
 
+echo "\n-- review components --\n";
+
+ok( 'score fmt 8.0 → 8', cian_core_fmt_score( 8.0 ) === '8' );
+ok( 'score fmt 7.5 → 7.5', cian_core_fmt_score( 7.5 ) === '7.5' );
+
+$panel = cian_core_render_score_panel( 8.5, array( 'Design' => 9, 'Value' => 0, 'Performance' => 7.5 ) );
+ok( 'score panel shows overall', strpos( $panel, '>8.5<' ) !== false );
+ok( 'score panel has meter for scored', strpos( $panel, '<meter' ) !== false );
+ok( 'score panel skips 0 (Value)', strpos( $panel, 'Value' ) === false );
+ok( 'score panel clamps aria', strpos( $panel, 'Design: 9 out of 10' ) !== false );
+
+$pc = cian_core_render_pros_cons(
+	array( array( 'text' => 'Fast' ), array( 'text' => '' ) ),
+	array( 'Pricey' )
+);
+ok( 'pros/cons: pros column', strpos( $pc, 'Fast' ) !== false && strpos( $pc, 'cian-pros' ) !== false );
+ok( 'pros/cons: cons column (string item)', strpos( $pc, 'Pricey' ) !== false );
+ok( 'pros/cons: blank item skipped', substr_count( $pc, '<li>' ) === 2 );
+ok( 'pros/cons: empty → empty string', cian_core_render_pros_cons( array(), array() ) === '' );
+
+$spec = cian_core_render_spec_table( array( array( 'spec' => 'Weight', 'value' => '1.2kg' ), array( 'spec' => '' ) ) );
+ok( 'spec table: row rendered', strpos( $spec, '<th scope="row">Weight</th>' ) !== false );
+ok( 'spec table: blank spec skipped', substr_count( $spec, '<tr>' ) === 1 );
+
+ok( 'review shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_review_scores'], $GLOBALS['__shortcodes']['cian_pros_cons'], $GLOBALS['__shortcodes']['cian_spec_table'] ) );
+
 // ---- Summary ----------------------------------------------------------------
 echo "\n";
 if ( $FAIL === 0 ) {
