@@ -237,6 +237,24 @@ ok( 'card: lazy thumb', strpos( $card, 'loading="lazy"' ) !== false );
 ok( 'card: missing url → empty', cian_core_render_card_data( array( 'title' => 'x' ) ) === '' );
 ok( 'card/related shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_card'], $GLOBALS['__shortcodes']['cian_related'] ) );
 
+echo "\n-- schema (structured data) --\n";
+
+$notes = cian_core_schema_notes( array( array( 'text' => 'Fast' ), array( 'text' => '' ), 'Quiet' ) );
+ok( 'notes: ItemList type', ( $notes['@type'] ?? '' ) === 'ItemList' );
+ok( 'notes: 2 items (blank skipped)', count( $notes['itemListElement'] ) === 2 );
+ok( 'notes: positions + names', $notes['itemListElement'][1]['position'] === 2 && $notes['itemListElement'][1]['name'] === 'Quiet' );
+ok( 'notes: empty → null', cian_core_schema_notes( array() ) === null );
+
+$howto = cian_core_schema_howto_steps( array(
+	array( 'acf_fc_layout' => 'step_section', 'title' => 'Install nginx', 'body' => '<p>Run apt.</p>' ),
+	array( 'acf_fc_layout' => 'command_block', 'code' => 'apt install nginx' ),
+	array( 'acf_fc_layout' => 'step_section', 'title' => 'Verify' ),
+), 'https://x.test/guides/g/' );
+ok( 'howto: 2 steps (only sections)', count( $howto ) === 2 );
+ok( 'howto: HowToStep type + position', $howto[0]['@type'] === 'HowToStep' && $howto[0]['position'] === 1 );
+ok( 'howto: anchored url', $howto[0]['url'] === 'https://x.test/guides/g/#install-nginx' );
+ok( 'howto: body → text', $howto[0]['text'] === 'Run apt.' );
+
 echo "\n-- youtube sync mapping --\n";
 
 ok( 'best thumbnail prefers maxres', cian_core_yt_best_thumbnail( array(
