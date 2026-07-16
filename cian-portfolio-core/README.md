@@ -6,7 +6,9 @@ Site-specific WordPress plugin for the Digital District portfolio. It owns every
 
 ## Status
 
-**Phase 3 scaffold** (structure + contracts). Data model registers and activates; YouTube sync, transcript editing UI, and the Three.js scene are stubbed with documented contracts and land in Phases 4–7 (see [`docs/plan/13`](../docs/plan/13-roadmap-and-testing.md)).
+**Phase 3 scaffold + Phase 4 field model** (structure, contracts, and ACF field groups). The data model registers and activates, and the complete ACF field groups (7 post types + shared SEO clone + options page, 286 fields) are authored as importable JSON in [`acf-json/`](acf-json/). YouTube sync, transcript editing UI, and the Three.js scene are stubbed with documented contracts and land in Phases 5–7 (see [`docs/plan/13`](../docs/plan/13-roadmap-and-testing.md)).
+
+The field groups load automatically via `includes/acf-fields.php`. On staging, edits made in the ACF UI re-export to `acf-json/` for commit — that folder is the version-controlled source of truth, matching the spec in [`docs/plan/03 §8`](../docs/plan/03-information-architecture-and-content-model.md).
 
 ## Requirements
 
