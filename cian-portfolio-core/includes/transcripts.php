@@ -10,7 +10,74 @@
 defined( 'ABSPATH' ) || exit;
 
 function cian_core_module_transcripts(): void {
-	// Editing metabox + REST wiring arrive with the admin build (Phase 4/5).
+	add_action( 'add_meta_boxes', 'cian_core_register_transcript_metabox' );
+	add_action( 'save_post_video', 'cian_core_save_transcript_metabox' );
+}
+
+function cian_core_register_transcript_metabox(): void {
+	add_meta_box(
+		'cian-transcript',
+		'Transcript',
+		'cian_core_render_transcript_metabox',
+		'video',
+		'normal',
+		'default'
+	);
+}
+
+/** Metabox UI: paste VTT/SRT/plain text, choose format + status. */
+function cian_core_render_transcript_metabox( $post ): void {
+	wp_nonce_field( 'cian_transcript', 'cian_transcript_nonce' );
+	$status = get_post_meta( $post->ID, 'video_transcript_status', true ) ?: 'none';
+	$data   = cian_core_get_transcript_page( (int) $post->ID, 1, 1 );
+	$count  = (int) $data['total'];
+
+	$statuses = array( 'none', 'automatic', 'draft', 'reviewed', 'published' );
+	$formats  = array( '' => 'Auto-detect', 'vtt' => 'WebVTT', 'srt' => 'SubRip', 'text' => 'Plain text' );
+
+	echo '<p><strong>' . esc_html( sprintf( '%d segment(s) stored.', $count ) ) . '</strong> ';
+	echo esc_html( 'Paste a transcript below to replace them. Leave blank to only change status.' ) . '</p>';
+
+	echo '<p><label>' . esc_html( 'Status ' ) . '<select name="cian_transcript_status">';
+	foreach ( $statuses as $s ) {
+		printf( '<option value="%s"%s>%s</option>', esc_attr( $s ), selected( $status, $s, false ), esc_html( ucfirst( $s ) ) );
+	}
+	echo '</select></label> ';
+
+	echo '<label>' . esc_html( 'Format ' ) . '<select name="cian_transcript_format">';
+	foreach ( $formats as $val => $lbl ) {
+		printf( '<option value="%s">%s</option>', esc_attr( $val ), esc_html( $lbl ) );
+	}
+	echo '</select></label></p>';
+
+	echo '<textarea name="cian_transcript_raw" rows="10" style="width:100%;font-family:monospace" placeholder="WEBVTT ... or 1\n00:00:01,000 --> ... or plain text"></textarea>';
+}
+
+/** Save handler: parse + store the pasted transcript, or update status. */
+function cian_core_save_transcript_metabox( int $post_id ): void {
+	if ( ! isset( $_POST['cian_transcript_nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['cian_transcript_nonce'] ) ), 'cian_transcript' ) ) {
+		return;
+	}
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+
+	$status = isset( $_POST['cian_transcript_status'] ) ? sanitize_key( wp_unslash( $_POST['cian_transcript_status'] ) ) : 'draft';
+	$format = isset( $_POST['cian_transcript_format'] ) ? sanitize_key( wp_unslash( $_POST['cian_transcript_format'] ) ) : '';
+	// The parser sanitises each segment (wp_strip_all_tags); do not pre-mangle.
+	$raw = isset( $_POST['cian_transcript_raw'] ) ? wp_unslash( $_POST['cian_transcript_raw'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+
+	if ( '' !== trim( (string) $raw ) ) {
+		$segments = cian_core_parse_transcript( (string) $raw, $format );
+		if ( ! empty( $segments ) ) {
+			cian_core_store_transcript( $post_id, $segments, $status );
+			return;
+		}
+	}
+	update_post_meta( $post_id, 'video_transcript_status', $status );
 }
 
 function cian_core_transcript_table(): string {
