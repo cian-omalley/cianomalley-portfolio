@@ -24,6 +24,11 @@ function cian_core_create_transcript_table(): void {
 	$table   = cian_core_transcript_table();
 	$charset = $wpdb->get_charset_collate();
 
+	// The FULLTEXT index is added separately (below): FULLTEXT is MySQL/MariaDB
+	// only, and including it in the dbDelta CREATE TABLE breaks table creation
+	// on SQLite (used by the local dev environment). Frontend transcript search
+	// uses SearchWP (docs/plan/09 §28); this index only accelerates the native
+	// LIKE fallback, so it is optional and its absence is harmless.
 	dbDelta(
 		"CREATE TABLE {$table} (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -33,10 +38,27 @@ function cian_core_create_transcript_table(): void {
 			text TEXT NOT NULL,
 			sort INT UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id),
-			KEY video (video_id, sort),
-			FULLTEXT KEY segment_text (text)
+			KEY video (video_id, sort)
 		) {$charset};"
 	);
+
+	cian_core_maybe_add_fulltext( $table, 'segment_text', 'text' );
+}
+
+/**
+ * Add a FULLTEXT index if the database supports it. No-op (silently) on
+ * engines without FULLTEXT (e.g. SQLite) and when the index already exists.
+ */
+function cian_core_maybe_add_fulltext( string $table, string $index, string $column ): void {
+	global $wpdb;
+	$suppress = $wpdb->suppress_errors( true );
+
+	$existing = $wpdb->get_results( "SHOW INDEX FROM {$table} WHERE Key_name = '" . esc_sql( $index ) . "'" ); // phpcs:ignore WordPress.DB
+	if ( empty( $existing ) ) {
+		$wpdb->query( "ALTER TABLE {$table} ADD FULLTEXT {$index} ({$column})" ); // phpcs:ignore WordPress.DB
+	}
+
+	$wpdb->suppress_errors( $suppress );
 }
 
 /**

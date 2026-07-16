@@ -223,6 +223,39 @@ ok( 'spec table: blank spec skipped', substr_count( $spec, '<tr>' ) === 1 );
 
 ok( 'review shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_review_scores'], $GLOBALS['__shortcodes']['cian_pros_cons'], $GLOBALS['__shortcodes']['cian_spec_table'] ) );
 
+echo "\n-- youtube sync mapping --\n";
+
+ok( 'best thumbnail prefers maxres', cian_core_yt_best_thumbnail( array(
+	'default' => array( 'url' => 'd.jpg' ),
+	'maxres'  => array( 'url' => 'm.jpg' ),
+) ) === 'm.jpg' );
+ok( 'best thumbnail falls back', cian_core_yt_best_thumbnail( array( 'medium' => array( 'url' => 'med.jpg' ) ) ) === 'med.jpg' );
+ok( 'best thumbnail empty', cian_core_yt_best_thumbnail( array() ) === '' );
+
+$item = array(
+	'id'             => 'dQw4w9WgXcQ',
+	'snippet'        => array(
+		'title'        => 'Building with Oxygen 6',
+		'description'  => 'A guide.',
+		'publishedAt'  => '2026-01-15T10:00:00Z',
+		'channelTitle' => 'Cian O\'Malley',
+		'tags'         => array( 'oxygen', 'wordpress' ),
+		'thumbnails'   => array( 'high' => array( 'url' => 'h.jpg' ) ),
+	),
+	'contentDetails' => array( 'duration' => 'PT12M30S' ),
+	'status'         => array( 'privacyStatus' => 'public' ),
+);
+$m = cian_core_yt_map_video( $item );
+ok( 'map: youtube id sanitized', $m['youtube_id'] === 'dQw4w9WgXcQ' );
+ok( 'map: title', $m['title'] === 'Building with Oxygen 6' );
+ok( 'map: duration PT12M30S → 00:12:30', $m['duration'] === '00:12:30' );
+ok( 'map: publishedAt → date', $m['published'] === '2026-01-15' );
+ok( 'map: tags', $m['tags'] === array( 'oxygen', 'wordpress' ) );
+ok( 'map: thumbnail', $m['thumbnail'] === 'h.jpg' );
+ok( 'map: privacy', $m['privacy'] === 'public' );
+ok( 'map: not live', $m['is_live'] === false );
+ok( 'map: invalid id → empty', cian_core_yt_map_video( array( 'id' => 'bad' ) )['youtube_id'] === '' );
+
 // ---- Summary ----------------------------------------------------------------
 echo "\n";
 if ( $FAIL === 0 ) {
