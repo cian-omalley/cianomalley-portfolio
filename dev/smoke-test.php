@@ -113,6 +113,28 @@ ok( 'chapters: hh:mm:ss start', ( $chap[2]['start'] ?? '' ) === '1:02:05' );
 
 ok( 'chapter start → seconds', cian_core_timestamp_to_seconds( '1:02:05' ) === 3725 );
 
+$srt = "1\n00:00:01,000 --> 00:00:03,500\nHello world\n\n2\n00:00:04,000 --> 00:00:06,000\nSecond line\n";
+$s2 = cian_core_parse_srt( $srt );
+ok( 'SRT: 2 segments parsed', count( $s2 ) === 2 );
+ok( 'SRT: comma ms handled', ( $s2[0]['end_ms'] ?? null ) === 3500 );
+
+$pt = cian_core_parse_plaintext( "[0:05] First\nUntimed line\n[1:00] Third\n" );
+ok( 'plaintext: 3 segments', count( $pt ) === 3 );
+ok( 'plaintext: timestamp parsed', ( $pt[0]['start_ms'] ?? null ) === 5000 );
+ok( 'plaintext: untimed → 0', ( $pt[1]['start_ms'] ?? null ) === 0 );
+
+ok( 'dispatch sniffs VTT', count( cian_core_parse_transcript( $vtt ) ) === 2 );
+ok( 'dispatch sniffs SRT', count( cian_core_parse_transcript( $srt ) ) === 2 );
+ok( 'dispatch defaults to text', count( cian_core_parse_transcript( "just some text" ) ) === 1 );
+
+$ends = cian_core_fill_chapter_ends( array(
+	array( 'start' => '0:00', 'title' => 'A' ),
+	array( 'start' => '1:30', 'title' => 'B' ),
+	array( 'start' => '3:00', 'title' => 'C' ),
+) );
+ok( 'chapter end autofilled from next start', ( $ends[0]['end'] ?? '' ) === '1:30' );
+ok( 'last chapter end stays empty', empty( $ends[2]['end'] ) );
+
 ok( 'ISO duration PT1H2M3S → 01:02:03', cian_core_yt_duration( 'PT1H2M3S' ) === '01:02:03' );
 ok( 'ISO duration PT45S → 00:00:45', cian_core_yt_duration( 'PT45S' ) === '00:00:45' );
 
