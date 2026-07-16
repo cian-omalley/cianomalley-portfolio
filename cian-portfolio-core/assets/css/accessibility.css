@@ -1,0 +1,29 @@
+/*
+ * Accessibility layer (docs/plan/10 §29). Global. Skip links, focus, and the
+ * quiet accessible system menu that never visually dominates.
+ */
+
+.cian-skip-link {
+  position: absolute;
+  inset-block-start: -60px;
+  inset-inline-start: var(--space-3);
+  z-index: var(--z-skip);
+  background: var(--violet-electric);
+  color: var(--white-soft);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 0 0 var(--radius-control) var(--radius-control);
+  transition: inset-block-start var(--dur-micro) var(--ease-out);
+}
+.cian-skip-link:focus { inset-block-start: 0; }
+
+/* Large touch targets everywhere. */
+.cian-hotspot, .cian-btn, .cian-facade__play { min-width: 44px; min-height: 44px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

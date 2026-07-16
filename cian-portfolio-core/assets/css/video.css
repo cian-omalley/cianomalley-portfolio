@@ -1,0 +1,40 @@
+/*
+ * Video components (docs/plan/06 §20). Loaded only where a video renders.
+ * The facade reserves aspect ratio to avoid layout shift; no player loads
+ * until the user activates it.
+ */
+
+.cian-facade {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  border: var(--border-hair);
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+}
+.cian-facade__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(4 8 5 / 0.35);
+  color: var(--white-soft);
+}
+.cian-facade__badge {
+  position: absolute;
+  inset-block-end: var(--space-2);
+  inset-inline-end: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgb(4 8 5 / 0.7);
+}
+
+.cian-chapters li { cursor: pointer; padding: var(--space-1) 0; }
+.cian-chapters time { color: var(--cyan-signal); font-family: var(--font-mono); }
+
+.cian-transcript[hidden] { display: none; }
+.cian-transcript__seg time { color: var(--cyan-signal); font-family: var(--font-mono); margin-inline-end: var(--space-2); }

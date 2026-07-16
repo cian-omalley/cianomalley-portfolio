@@ -32,7 +32,7 @@
 | Accessibility statement | `/accessibility/` | |
 | Privacy policy | `/privacy/` | German/EU-compliant |
 | Imprint | `/imprint/` | Impressum — likely legally required in Germany |
-| CV / documents | `cianomalley.works` → served docs or redirect to `/about/#cv` | secondary domain |
+| CV / documents | `/cv/` on the primary site (`cianomalley.works`) or `/about/#cv` | primary domain hosts the CV |
 
 Taxonomy archives: `/projects/category/{term}/`, `/guides/topic/{term}/`, `/guides/difficulty/{term}/`, `/videos/category/{term}/`, `/reviews/category/{term}/`, `/tag/{term}/` (shared technology tag). All content is server-rendered at direct URLs; the 3D layer only *navigates to* these URLs.
 
@@ -58,7 +58,7 @@ flowchart TD
     REV --> R1["/reviews/{slug}/"]
     HOME -.-> SEARCH["/search/"]
     HOME -.-> MAP["/map/"]
-    ABOUT --> CV["cianomalley.works — CV & documents"]
+    ABOUT --> CV["/cv/ on cianomalley.works — CV & documents"]
 ```
 
 ### Content relationship overview

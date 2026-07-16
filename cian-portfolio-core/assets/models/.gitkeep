@@ -1,0 +1,4 @@
+# Compressed 3D assets (Draco/meshopt GLB + KTX2 textures) live here.
+# district-core.glb (hub + 8 silhouettes) + district-{name}.glb detail chunks.
+# Large binaries should be tracked with Git LFS. See docs/plan/07 §23 and
+# docs/plan/14 §41 for the asset pipeline and budgets.

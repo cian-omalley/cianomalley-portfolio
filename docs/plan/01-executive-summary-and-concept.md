@@ -9,7 +9,7 @@
 
 ### What is being built
 
-An interactive developer portfolio for **Cian O'Malley** at **`cianomalley.dev`** (primary) with **`cianomalley.works`** as a secondary document domain (CV, PDFs, downloadable dossiers). The site presents Cian as a developer, systems builder, technical researcher, and digital creator, and doubles as a full technical-content platform: written guides, step-by-step tutorials, software and equipment reviews, uploaded and YouTube-hosted videos with synchronized metadata, searchable transcripts, tutorial series/playlists, and video-supported project case studies.
+An interactive developer portfolio for **Cian O'Malley** at **`cianomalley.works`** (primary portfolio) with **`cianomalley.dev`** hosting small showcase projects, demos, and experiments (see `docs/discovery.md` §7 — this reverses the original brief's assignment; discovery is authoritative). The site presents Cian as a developer, systems builder, technical researcher, and digital creator, and doubles as a full technical-content platform: written guides, step-by-step tutorials, software and equipment reviews, uploaded and YouTube-hosted videos with synchronized metadata, searchable transcripts, tutorial series/playlists, and video-supported project case studies.
 
 The experience layer is **"The Digital District"** — a compact, cinematic cyberpunk environment rendered with one lazy-loaded Three.js scene, navigated through fixed camera nodes and clearly labeled hotspots. It is a *progressive enhancement* on top of a complete, accessible, server-rendered WordPress site. Every district maps 1:1 to real WordPress content; nothing exists only in 3D.
 
@@ -46,7 +46,7 @@ Foundation → content model → YouTube sync → **complete accessible non-3D s
 ### Stated assumptions
 
 1. **Multi-file plan**: this plan is delivered as an ordered document set (`docs/plan/01…14`) preserving the brief's exact 44-section order via the index in `README.md`.
-2. The repo README mentions `cianomalley.works` as the showcase domain; the brief is authoritative — `cianomalley.dev` is primary, `.works` is the document domain.
+2. **Domains (amended by discovery):** `cianomalley.works` is the primary portfolio; `cianomalley.dev` hosts small showcase projects and demos. The original brief had these reversed; `docs/discovery.md` §7 is the confirmed decision and wins.
 3. **ACF Pro** (paid) is assumed: repeaters, flexible content, options pages, and bidirectional relationship UX are required by the field model.
 4. **Oxygen Builder 6** (current architecture, with its component system) is licensed and available, as is Breakdance Elements for Oxygen.
 5. The YouTube channel exists; channel ID, playlist IDs, and existing video inventory are Phase 0 discovery inputs and are parameterized, not invented.

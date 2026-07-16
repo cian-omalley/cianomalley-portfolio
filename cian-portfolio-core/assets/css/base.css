@@ -1,0 +1,36 @@
+/*
+ * Base layer (docs/plan/06 §18). Global element defaults built on tokens.
+ * Layout classes belong to the builder; system styling belongs here.
+ */
+
+body {
+  background: var(--bg-void);
+  color: var(--white-soft);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; color: var(--white-soft); }
+h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 700; }
+h2 { font-size: clamp(1.6rem, 3.5vw, 2.25rem); font-weight: 600; }
+h3 { font-size: clamp(1.25rem, 2.5vw, 1.6rem); font-weight: 600; }
+
+a { color: var(--violet-300); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { color: var(--white-soft); }
+
+code, pre, kbd { font-family: var(--font-mono); }
+
+:is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--cyan-signal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}

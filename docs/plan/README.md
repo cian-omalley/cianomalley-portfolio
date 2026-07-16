@@ -1,6 +1,6 @@
 # Cian O'Malley — Interactive Cyberpunk Portfolio: Master Plan
 
-Complete design, technical, content, and implementation plan for the futuristic interactive developer portfolio at **cianomalley.dev** (with **cianomalley.works** as the secondary document domain), built on WordPress with Oxygen Builder 6, Breakdance Elements for Oxygen, ACF Pro, a site-specific plugin, one Three.js scene, and full YouTube Data API synchronization.
+Complete design, technical, content, and implementation plan for the futuristic interactive developer portfolio at **cianomalley.works** (primary portfolio; **cianomalley.dev** hosts small showcase projects and demos — see `docs/discovery.md`), built on WordPress with Oxygen Builder 6, Breakdance Elements for Oxygen, ACF Pro, a site-specific plugin, one Three.js scene, and full YouTube Data API synchronization.
 
 Produced from the authoritative brief `claude-cyberpunk-portfolio-planning-prompt.md`. The plan follows the brief's **Section 33 required output order exactly** — all 44 sections, mapped below.
 

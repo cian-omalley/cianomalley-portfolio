@@ -57,22 +57,25 @@ Anti-bloat rule: any new plugin needs a written entry in this table (in `docs/de
 
 ## Section 36 — Hosting Plan
 
+> **Amended by `docs/discovery.md` §2 (self-hosted first).** The owner will **self-host first** (home server) and migrate to a VPS later. The stack below is identical on both stages, so the migration is an rsync + DB move behind a Cloudflare DNS swap — not a rebuild. Sequence: **home server for build/staging and early production → managed VPS when traffic/uptime demand it.**
+
 ### Evaluation
 
 | Option | Pros | Cons | Verdict |
 |---|---|---|---|
-| Managed WP (Kinsta/WP Engine class) | ops offloaded, staging built-in | cost, PHP/queue limits (hurts sync + any Workflow B future), less control, often US-centric | viable fallback |
-| **VPS (Hetzner, Germany)** | EU data locality, full control (real cron, Redis, WP-CLI, Nginx rules, Action Scheduler headroom), cheap (~€10–20/mo CX/CPX class), fits owner's self-hosting expertise & portfolio story | you are the ops team | **Recommended** |
-| Self-hosted home server | on-brand | residential uptime/attack surface for a professional portfolio | rejected for production (fine for staging experiments) |
-| Cloudflare in front | CDN, WAF, DNS, TLS, cache | — | **Yes, adopt** (with EU-appropriate DPA noted in privacy policy) |
+| **Self-hosted home server (stage 1)** | zero hosting cost, full control, on-brand for a self-hosting portfolio, EU/German data locality by default | residential uptime + attack surface; owner is sole ops | **Chosen for stage 1** — mitigated by Cloudflare in front, offsite backups, and a migration-ready setup |
+| Home-server control panel | aaPanel (or plain Docker Compose) provisions Nginx/PHP/MariaDB/SSL on the home box | panel lock-in if over-relied on | **aaPanel or Docker Compose** for stage 1 (SpinupWP manages *cloud* servers, so it fits stage 2, not a home box) |
+| **VPS (e.g. Hetzner, Germany; SpinupWP-managed) (stage 2)** | EU data locality, full control (real cron, Redis, WP-CLI, Nginx rules), cheap (~€10–20/mo), better uptime than residential | you are still the ops team (SpinupWP eases this) | **Migration target** when the site outgrows the home server |
+| Managed WP (Kinsta/WP Engine class) | ops offloaded | cost, PHP/queue limits (hurts sync), less control, often US-centric | viable fallback |
+| Cloudflare in front | CDN, WAF, DNS, TLS, cache — and hides the origin IP (important for a home server) | — | **Yes, adopt from day one** (EU-appropriate DPA noted in privacy policy) |
 
-### Recommended stack
+### Recommended stack (identical on home server and VPS)
 
-Hetzner CPX VPS (Nuremberg/Falkenstein): **Nginx** + **PHP-FPM 8.3** + **MariaDB 10.11** + **Redis**; real cron (`*/5` hitting `wp-cron.php`; `DISABLE_WP_CRON` true); Nginx FastCGI page cache (preferred over a cache plugin) with purge hooks; server-side image optimization (WebP/AVIF via Imagick); fail2ban + ufw; staging as `staging.cianomalley.dev` on the same box (separate pools/DB, basic-auth + noindex).
+**Nginx** + **PHP-FPM 8.3** + **MariaDB 10.11** + **Redis**; real cron (`*/5` hitting `wp-cron.php`; `DISABLE_WP_CRON` true); Nginx FastCGI page cache (preferred over a cache plugin) with purge hooks; server-side image optimization (WebP/AVIF via Imagick); fail2ban + firewall; staging as `staging.cianomalley.works` (separate pool/DB, basic-auth + noindex). On the home server, Cloudflare Tunnel (or a proxied A record) keeps the residential IP private. No panel-specific lock-in, so the VPS migration is a clean lift-and-shift.
 
 ### Domains & DNS
 
-Both `cianomalley.dev` and `cianomalley.works` registered at **Names.com**, nameservers → **Cloudflare DNS**. `.dev` is on the HSTS preload list — HTTPS is mandatory from day one (Cloudflare Full-Strict + Let's Encrypt on origin). `cianomalley.works` serves the document/CV surface (either a lightweight static docs site or a reverse-proxied `/documents/` path on the same origin; canonical links point at `.works` URLs for documents to keep the portfolio's canonical content on `.dev`). SSL for both via Cloudflare + origin certs.
+Both `cianomalley.works` and `cianomalley.dev` registered at **Names.com**, nameservers → **Cloudflare DNS**. `cianomalley.works` is the **primary portfolio**; `cianomalley.dev` hosts **small showcase projects, demos, and experiments** (its HSTS-preload requirement makes mandatory HTTPS a non-issue). The CV/documents live on the primary site (`/cv/`). SSL for both via Cloudflare + origin certs (Full-Strict). See `docs/discovery.md` §7.
 
 ### Video storage policy (restating the rule)
 
@@ -80,4 +83,4 @@ Both `cianomalley.dev` and `cianomalley.works` registered at **Names.com**, name
 
 ### Capacity & access notes
 
-YouTube API calls originate from the VPS (egress fine, no inbound needed except the optional WebSub callback over HTTPS); backups to Hetzner Storage Box (same DC region, offsite from the VM); disk sized 80 GB+ (uploads dominated by images/thumbnails, not video, per policy).
+YouTube API calls originate from the origin server (egress fine, no inbound needed except the optional WebSub callback over HTTPS — a Cloudflare Tunnel handles this cleanly on a home server without opening ports); backups go **offsite** (a different provider/location than the origin — critical when the origin is a home server), encrypted, 30-day rotation; disk sized 80 GB+ (uploads dominated by images/thumbnails, not video, per policy).
