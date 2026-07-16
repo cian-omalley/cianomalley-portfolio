@@ -11,7 +11,7 @@
 
 Everything indexable is **server-rendered HTML at a direct, canonical URL** — the 3D layer changes nothing for crawlers (canvas is additive; hotspots navigate to real URLs). Canonicals on every page; clean permalinks per Part 03; breadcrumbs on all singles; pagination `rel` handled by the SEO plugin.
 
-**SEO plugin:** The SEO Framework or Rank Math (final pick at Phase 3 after weight check — criteria: sitemap quality, schema control granularity, no ad-noise). It supplies: titles/descriptions (fed from the ACF SEO tab via filter), XML sitemaps (per CPT + **video sitemap** — if the chosen plugin's video sitemap is weak, `seo.php` generates `/video-sitemap.xml` from cached video data: player URL, thumbnail, duration, publication date), Open Graph + Twitter cards (per-post image, defaults from options page), breadcrumb data, robots/noindex for staging and utility pages (`/search/`, `/map/` indexable-but-low-priority; 404/settings noindex).
+**SEO plugin: The SEO Framework** (confirmed — the free, ad-free, lightweight choice; see `docs/discovery.md` §8). Its free core supplies: titles/descriptions (fed from the ACF SEO tab via filter), XML sitemaps (per CPT + **video sitemap** — if the chosen plugin's video sitemap is weak, `seo.php` generates `/video-sitemap.xml` from cached video data: player URL, thumbnail, duration, publication date), Open Graph + Twitter cards (per-post image, defaults from options page), breadcrumb data, robots/noindex for staging and utility pages (`/search/`, `/map/` indexable-but-low-priority; 404/settings noindex).
 
 ### Structured data (single-emitter rule: for each type, exactly one source emits — plugin emitters disable the SEO plugin's overlapping block)
 
