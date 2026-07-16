@@ -43,7 +43,7 @@ Nightly: DB + uploads + plugin dir + design exports → offsite (Hetzner Storage
 | Breakdance Elements for Oxygen | UI elements | Recommended | low | native Oxygen builds | each element replaceable individually; audit doc tracks usage |
 | SearchWP | search + transcript index | Recommended | med (index tables) | Relevanssi | search falls back to native; REST bridge isolates the engine |
 | Fluent Forms | contact forms | **Essential** (some form solution) | low | WS Form; Breakdance Forms (Arch. B) | single form; rebuild in an hour; export entries first |
-| SEO Framework / Rank Math | SEO basics | **Essential** (one of them) | low | the other | ACF SEO fields are plugin-owned, so switching SEO plugins is a filter re-wire |
+| The SEO Framework (free) | SEO basics | **Essential** | low | Rank Math (free tier) | ACF SEO fields are plugin-owned, so switching SEO plugins is a filter re-wire |
 | Two-Factor | 2FA | **Essential** | none | Wordfence login features | disable, re-enable alternative |
 | Redis Object Cache | object caching | Recommended (VPS) | positive | none needed | drop-in removal |
 | Cache plugin (WP Super Cache/W3TC/FlyingPress — pick one at Phase 10 vs server-level cache) | page cache | Recommended | positive | Nginx FastCGI cache (preferred if ops comfort allows — then no plugin) | swap freely; purge hooks in plugin abstracted |
@@ -64,14 +64,14 @@ Anti-bloat rule: any new plugin needs a written entry in this table (in `docs/de
 | Option | Pros | Cons | Verdict |
 |---|---|---|---|
 | **Self-hosted home server (stage 1)** | zero hosting cost, full control, on-brand for a self-hosting portfolio, EU/German data locality by default | residential uptime + attack surface; owner is sole ops | **Chosen for stage 1** — mitigated by Cloudflare in front, offsite backups, and a migration-ready setup |
-| Home-server control panel | aaPanel (or plain Docker Compose) provisions Nginx/PHP/MariaDB/SSL on the home box | panel lock-in if over-relied on | **aaPanel or Docker Compose** for stage 1 (SpinupWP manages *cloud* servers, so it fits stage 2, not a home box) |
+| Home-server control panel | **aaPanel (confirmed)** provisions Nginx/PHP/MariaDB/Redis/SSL on the home box via a web UI | panel lock-in if over-relied on | **aaPanel** for stage 1 (SpinupWP manages *cloud* servers, so it fits stage 2, not a home box). Keep the site config portable so the panel is replaceable. |
 | **VPS (e.g. Hetzner, Germany; SpinupWP-managed) (stage 2)** | EU data locality, full control (real cron, Redis, WP-CLI, Nginx rules), cheap (~€10–20/mo), better uptime than residential | you are still the ops team (SpinupWP eases this) | **Migration target** when the site outgrows the home server |
 | Managed WP (Kinsta/WP Engine class) | ops offloaded | cost, PHP/queue limits (hurts sync), less control, often US-centric | viable fallback |
 | Cloudflare in front | CDN, WAF, DNS, TLS, cache — and hides the origin IP (important for a home server) | — | **Yes, adopt from day one** (EU-appropriate DPA noted in privacy policy) |
 
 ### Recommended stack (identical on home server and VPS)
 
-**Nginx** + **PHP-FPM 8.3** + **MariaDB 10.11** + **Redis**; real cron (`*/5` hitting `wp-cron.php`; `DISABLE_WP_CRON` true); Nginx FastCGI page cache (preferred over a cache plugin) with purge hooks; server-side image optimization (WebP/AVIF via Imagick); fail2ban + firewall; staging as `staging.cianomalley.works` (separate pool/DB, basic-auth + noindex). On the home server, Cloudflare Tunnel (or a proxied A record) keeps the residential IP private. No panel-specific lock-in, so the VPS migration is a clean lift-and-shift.
+Provisioned via **aaPanel** on the home server: **Nginx** + **PHP-FPM 8.3** + **MariaDB 10.11** + **Redis**; real cron (`*/5` hitting `wp-cron.php`; `DISABLE_WP_CRON` true); Nginx FastCGI page cache (preferred over a cache plugin) with purge hooks; server-side image optimization (WebP/AVIF via Imagick); aaPanel's firewall + fail2ban; staging as `staging.cianomalley.works` (separate pool/DB, basic-auth + noindex). On the home server, **Cloudflare Tunnel** keeps the residential IP private (no inbound ports opened). The WordPress site makes no aaPanel-only assumptions, so the eventual VPS migration is a clean lift-and-shift behind a DNS swap.
 
 ### Domains & DNS
 

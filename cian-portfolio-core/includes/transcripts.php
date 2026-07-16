@@ -71,6 +71,91 @@ function cian_core_parse_vtt( string $vtt ): array {
 	return $segments;
 }
 
+/**
+ * Parse a SubRip (SRT) string into segments.
+ *
+ * SRT uses comma decimals (00:00:01,000); we normalise to dots and reuse the
+ * timestamp parser. Cue numbers and blank lines are ignored; markup stripped.
+ *
+ * @return array<int, array{start_ms:int, end_ms:int, text:string}>
+ */
+function cian_core_parse_srt( string $srt ): array {
+	$segments = array();
+	$blocks   = preg_split( '/\n\s*\n/', str_replace( "\r\n", "\n", trim( $srt ) ) ) ?: array();
+
+	foreach ( $blocks as $block ) {
+		$lines = explode( "\n", trim( $block ) );
+		// Drop a leading numeric cue index if present.
+		if ( isset( $lines[0] ) && ctype_digit( trim( $lines[0] ) ) ) {
+			array_shift( $lines );
+		}
+		if ( empty( $lines ) || false === strpos( $lines[0], '-->' ) ) {
+			continue;
+		}
+		$times = str_replace( ',', '.', array_shift( $lines ) );
+		list( $start, $end ) = array_map( 'trim', explode( '-->', $times ) );
+		$text = trim( wp_strip_all_tags( implode( ' ', $lines ) ) );
+		if ( '' === $text ) {
+			continue;
+		}
+		$segments[] = array(
+			'start_ms' => cian_core_timestamp_to_ms( $start ),
+			'end_ms'   => cian_core_timestamp_to_ms( $end ),
+			'text'     => $text,
+		);
+	}
+
+	return $segments;
+}
+
+/**
+ * Parse plain text into segments. Lines beginning "[MM:SS]" / "[HH:MM:SS]"
+ * carry a timestamp; otherwise segments are sequential with 0 timing (an
+ * unedited automatic transcript the owner times later).
+ *
+ * @return array<int, array{start_ms:int, end_ms:int, text:string}>
+ */
+function cian_core_parse_plaintext( string $text ): array {
+	$segments = array();
+	foreach ( preg_split( '/\r\n|\r|\n/', trim( $text ) ) ?: array() as $line ) {
+		$line = trim( $line );
+		if ( '' === $line ) {
+			continue;
+		}
+		$start_ms = 0;
+		if ( preg_match( '/^\[((?:\d{1,2}:)?\d{1,2}:\d{2})\]\s*(.*)$/', $line, $m ) ) {
+			$start_ms = cian_core_timestamp_to_ms( $m[1] );
+			$line     = $m[2];
+		}
+		if ( '' !== $line ) {
+			$segments[] = array( 'start_ms' => $start_ms, 'end_ms' => 0, 'text' => $line );
+		}
+	}
+	return $segments;
+}
+
+/**
+ * Format-dispatching transcript importer.
+ *
+ * @param string $format vtt | srt | text (defaults to sniffing the content).
+ * @return array<int, array{start_ms:int, end_ms:int, text:string}>
+ */
+function cian_core_parse_transcript( string $raw, string $format = '' ): array {
+	$format = strtolower( $format );
+	if ( '' === $format ) {
+		$format = ( false !== stripos( $raw, 'WEBVTT' ) ) ? 'vtt'
+			: ( preg_match( '/-->.*,\d{3}/', $raw ) ? 'srt' : 'text' );
+	}
+	switch ( $format ) {
+		case 'vtt':
+			return cian_core_parse_vtt( $raw );
+		case 'srt':
+			return cian_core_parse_srt( $raw );
+		default:
+			return cian_core_parse_plaintext( $raw );
+	}
+}
+
 /** "HH:MM:SS.mmm" | "MM:SS.mmm" → milliseconds. */
 function cian_core_timestamp_to_ms( string $ts ): int {
 	$parts = array_reverse( explode( ':', trim( $ts ) ) );

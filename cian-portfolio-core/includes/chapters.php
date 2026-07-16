@@ -34,3 +34,21 @@ function cian_core_timestamp_to_seconds( string $ts ): int {
 	$parts = array_reverse( explode( ':', trim( $ts ) ) );
 	return (int) ( $parts[0] ?? 0 ) + 60 * (int) ( $parts[1] ?? 0 ) + 3600 * (int) ( $parts[2] ?? 0 );
 }
+
+/**
+ * Fill each chapter's empty `end` with the next chapter's `start` (spec:
+ * "end auto = next start"). The last chapter keeps whatever end it has.
+ *
+ * @param array<int, array<string, string>> $chapters Rows with `start` (+ optional `end`, `title`).
+ * @return array<int, array<string, string>>
+ */
+function cian_core_fill_chapter_ends( array $chapters ): array {
+	$count = count( $chapters );
+	foreach ( $chapters as $i => &$chapter ) {
+		if ( empty( $chapter['end'] ) && $i + 1 < $count ) {
+			$chapter['end'] = $chapters[ $i + 1 ]['start'] ?? '';
+		}
+	}
+	unset( $chapter );
+	return $chapters;
+}

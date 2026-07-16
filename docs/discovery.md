@@ -13,8 +13,8 @@ Licensed and available: **Oxygen Builder 6**, **Breakdance Elements for Oxygen**
 
 Plan impact (Part 12 §36 amended):
 - The original plan rejected self-hosting *for production launch*; the amended sequence is: **self-hosted for build/staging and early production → migrate to VPS when traffic/uptime demands it**. The stack recommendation (Nginx + PHP 8.3 + MariaDB + Redis + real cron) is identical on both, so the migration is a rsync + DB move, not a rebuild.
-- SpinupWP note: SpinupWP is a control panel that provisions *cloud servers* (it manages a VPS, not a home server) — it fits the *later* VPS stage well. For the home-server stage, aaPanel (or plain Docker Compose / manual Nginx) is the fitting choice. Recommended path: **aaPanel or Docker Compose at home now → SpinupWP-managed VPS later**.
-- Keep everything migration-friendly from day one: no panel-specific lock-in, backups offsite, domains behind Cloudflare (origin swap is then a DNS change).
+- **Panel decision (confirmed): aaPanel** on the home server for stage 1. SpinupWP is a control panel that provisions *cloud servers* (it manages a VPS, not a home server), so it fits the *later* VPS stage. Path: **aaPanel at home now → SpinupWP-managed VPS later**.
+- aaPanel provisions the stack (Nginx + PHP 8.3 + MariaDB + Redis + SSL) with a web UI. To stay migration-friendly, keep WordPress config portable (no aaPanel-only assumptions in the site itself), back up offsite, and put both domains behind Cloudflare (with a Tunnel to hide the residential IP) so the eventual VPS move is a DNS change. aaPanel's own firewall/fail2ban features are used but the site never depends on the panel.
 
 ## 3. YouTube channel — does not exist yet ✅ (plan amendment)
 
@@ -63,13 +63,20 @@ Plan impact (Parts 05 §14 and 07 §23 amended in spirit):
 
 Plan impact: all domain references in `docs/plan/` and the README have been updated. `.dev`'s HSTS-preload (HTTPS mandatory) suits the demo/projects role fine. Documents/CV now live on the primary `.works` site (e.g. `/cv/`), since `.works` no longer needs to be a separate document domain.
 
+## 8. SEO plugin — free choice ✅ (build decision)
+
+**Decision:** use a **free** SEO plugin. Recommended: **The SEO Framework** — its core is fully free (no ads, no upsell nagging), lightweight, and covers titles/descriptions, Open Graph/Twitter cards, XML sitemaps, `BreadcrumbList`, robots/canonical, and basic `BlogPosting` schema. (Rank Math's free tier is also free but freemium with upsells; The SEO Framework is the cleaner fully-free fit.)
+
+Plan impact (Part 11 §32):
+- The SEO plugin owns: titles/descriptions (fed from the ACF SEO clone fields via filter), OG/Twitter, XML sitemaps, breadcrumbs, robots/canonical.
+- The **plugin** (`cian-portfolio-core/includes/seo.php`) still owns the richer types under the single-emitter rule: `HowTo`, `VideoObject`, `Review`/`Product`, `TechArticle`, `Person`/`WebSite`, `ItemList`, and the generated `/video-sitemap.xml` (The SEO Framework has no native video sitemap — the plugin fills that gap).
+- No paid SEO add-on is required for launch.
+
 ---
 
 ## Remaining open items (not blockers)
 
 | Item | Owner | Needed by |
 |---|---|---|
-| Pick home-server panel (aaPanel vs Docker Compose) | Cian | Phase 3 |
 | Create the YouTube channel (name, handle, branding) | Cian | Phase 5 |
 | CV file + social links | Cian | Phase 4 |
-| Choose SEO plugin (The SEO Framework vs Rank Math) | build decision | Phase 3 |

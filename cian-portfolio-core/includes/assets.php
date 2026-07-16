@@ -34,6 +34,11 @@ function cian_core_enqueue_assets(): void {
 		wp_enqueue_style( 'cian-content', $css . 'content.css', array( 'cian-base' ), $ver );
 	}
 
+	// Command-block copy behaviour — anywhere a command block can render.
+	if ( is_singular( array( 'guide', 'article', 'video', 'review', 'project' ) ) ) {
+		wp_enqueue_script( 'cian-content', $js . 'src/content.js', array( 'cian-a11y' ), $ver, array( 'strategy' => 'defer' ) );
+	}
+
 	// Video surfaces — facade/player/chapters/transcripts.
 	if ( cian_core_page_has_video() ) {
 		wp_enqueue_style( 'cian-video', $css . 'video.css', array( 'cian-base' ), $ver );

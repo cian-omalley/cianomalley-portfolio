@@ -11,7 +11,8 @@ Interactive cyberpunk developer portfolio for **Cian O'Malley**, built on WordPr
 ## Key decisions (from discovery)
 
 - **Domains:** `cianomalley.works` = primary portfolio · `cianomalley.dev` = small showcase projects/demos. (This reverses the original brief — discovery wins.)
-- **Hosting:** self-hosted first (home server, e.g. aaPanel or Docker Compose) → VPS later (SpinupWP-managed). Same stack both stages: Nginx + PHP 8.3 + MariaDB + Redis + Cloudflare.
+- **Hosting:** self-hosted first (home server on **aaPanel**) → VPS later (SpinupWP-managed). Same stack both stages: Nginx + PHP 8.3 + MariaDB + Redis + Cloudflare (Tunnel hides the home IP).
+- **SEO plugin:** **The SEO Framework** (free). Plugin's `seo.php` still owns rich schema (HowTo, VideoObject, Review, …) + the video sitemap under the single-emitter rule.
 - **Builder:** Oxygen 6 owns all templates; Breakdance Elements for Oxygen is a component library only; Breakdance never owns templates on production.
 - **Video:** YouTube is the delivery platform, WordPress the system of record. No channel exists yet — first content is the "Building this portfolio with Oxygen 6" series + an Oxygen 6 review.
 - **3D:** one lazy Three.js scene — a **dense mini city**, camera at street level, edges never visible. Progressive enhancement only; the accessible non-3D site is the baseline and ships first (Phase 6 gate).

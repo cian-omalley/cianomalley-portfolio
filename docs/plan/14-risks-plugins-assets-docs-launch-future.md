@@ -28,7 +28,7 @@
 
 The complete evaluated table (purpose, necessity, performance impact, alternative, removal strategy per plugin) is maintained in **Part 12 §35** — single source to avoid drift. Summary of the recommended production set (9 plugins total, deliberately small):
 
-**Essential:** ACF Pro · Oxygen 6 · Fluent Forms · SEO plugin (The SEO Framework or Rank Math) · Two-Factor · `cian-portfolio-core` (custom).
+**Essential:** ACF Pro · Oxygen 6 · Fluent Forms · SEO plugin (**The SEO Framework** — free, confirmed) · Two-Factor · `cian-portfolio-core` (custom).
 **Recommended:** Breakdance Elements for Oxygen · SearchWP · Redis Object Cache.
 **Conditional:** page-cache plugin *only if* Nginx FastCGI cache is not used · Complianz *only if* consent scope grows beyond contextual facades.
 **Rejected by default:** page builders beyond Oxygen on production, Jetpack, general "optimization suite" plugins (duplicate server capabilities), reCAPTCHA (privacy), Google Analytics (privacy; use Plausible/Matomo self-hosted).

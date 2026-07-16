@@ -141,3 +141,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Local-only drop-in plugins (e.g. ACF Pro) — keep the README
+dev/plugins/*
+!dev/plugins/README.md
