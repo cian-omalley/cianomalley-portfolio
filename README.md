@@ -321,6 +321,8 @@ for f in cian-portfolio-core/assets/js/src/*.js; do node --check "$f"; done
 
 Claude Code sessions have project agents (`wp-plugin-reviewer`, `docs-writer`) and skills (`/plugin-check`, `/caveman`) configured under `.claude/`; see [`CLAUDE.md`](CLAUDE.md).
 
+**Building with an AI agent?** [`AGENTS.md`](AGENTS.md) is the vendor-neutral build spec — current verified state, architecture contract, the three-layer verification workflow, and the remaining backlog — for Claude Code or any other coding agent.
+
 ---
 
 <div align="center">

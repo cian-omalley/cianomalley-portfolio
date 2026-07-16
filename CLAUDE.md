@@ -2,6 +2,8 @@
 
 Interactive cyberpunk developer portfolio for **Cian O'Malley**, built on WordPress. This repo currently holds the planning docs and the site-specific plugin scaffold — the WordPress install itself lives elsewhere.
 
+> **Read [`AGENTS.md`](AGENTS.md) first.** It is the vendor-neutral build spec (current state, architecture contract, verification workflow, and backlog) shared by every AI agent. This file adds only Claude Code-specific tooling on top.
+
 ## Ground truth (read before proposing anything)
 
 - **Master plan:** `docs/plan/` — 44 sections, indexed in `docs/plan/README.md`. This is the authoritative architecture.
