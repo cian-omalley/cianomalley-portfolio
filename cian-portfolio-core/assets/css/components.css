@@ -23,6 +23,27 @@
   color: var(--silver-moon);
 }
 
+/* Content cards + grid (archives, related blocks) */
+.cian-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+.cian-card {
+  background: var(--surface-glass);
+  border: var(--border-hair);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  transition: box-shadow var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out);
+}
+.cian-card:hover { box-shadow: var(--glow-violet); transform: translateY(-2px); }
+.cian-card__link { display: flex; flex-direction: column; height: 100%; text-decoration: none; color: inherit; }
+.cian-card__thumb { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.cian-card__body { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
+.cian-card__title { font-size: 1.125rem; }
+.cian-card__summary { color: var(--text-muted); font-size: 0.9375rem; margin: 0; }
+.cian-related { margin-block: var(--space-7); }
+
 .cian-btn {
   display: inline-flex;
   align-items: center;

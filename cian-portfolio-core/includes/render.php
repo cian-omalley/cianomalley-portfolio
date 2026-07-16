@@ -23,6 +23,8 @@ function cian_core_module_render(): void {
 	add_shortcode( 'cian_review_scores', 'cian_core_sc_review_scores' );
 	add_shortcode( 'cian_pros_cons', 'cian_core_sc_pros_cons' );
 	add_shortcode( 'cian_spec_table', 'cian_core_sc_spec_table' );
+	add_shortcode( 'cian_card', 'cian_core_sc_card' );
+	add_shortcode( 'cian_related', 'cian_core_sc_related' );
 }
 
 /* -------------------------------------------------------------------------
@@ -291,6 +293,91 @@ function cian_core_render_spec_table( array $specs ): string {
 	return '' === $rows ? '' : '<table class="cian-specs"><tbody>' . $rows . '</tbody></table>';
 }
 
+/**
+ * Content card (pure). Used by archives and related-content blocks.
+ *
+ * @param array{type?:string, title?:string, url?:string, summary?:string, thumb?:string, badge?:string} $d
+ */
+function cian_core_render_card_data( array $d ): string {
+	$url   = (string) ( $d['url'] ?? '' );
+	$title = (string) ( $d['title'] ?? '' );
+	if ( '' === $url || '' === $title ) {
+		return '';
+	}
+	$type    = (string) ( $d['type'] ?? 'default' );
+	$summary = (string) ( $d['summary'] ?? '' );
+	$thumb   = (string) ( $d['thumb'] ?? '' );
+	$badge   = (string) ( $d['badge'] ?? '' );
+
+	$out  = sprintf( '<article class="cian-card cian-card--%s">', esc_attr( '' !== $type ? $type : 'default' ) );
+	$out .= sprintf( '<a class="cian-card__link" href="%s">', esc_url( $url ) );
+	if ( '' !== $thumb ) {
+		$out .= sprintf( '<img class="cian-card__thumb" src="%s" alt="" loading="lazy" decoding="async">', esc_url( $thumb ) );
+	}
+	$out .= '<div class="cian-card__body">';
+	if ( '' !== $badge ) {
+		$out .= sprintf( '<span class="cian-chip">%s</span>', esc_html( $badge ) );
+	}
+	$out .= sprintf( '<h3 class="cian-card__title">%s</h3>', esc_html( $title ) );
+	if ( '' !== $summary ) {
+		$out .= sprintf( '<p class="cian-card__summary">%s</p>', esc_html( $summary ) );
+	}
+	$out .= '</div></a></article>';
+	return $out;
+}
+
+/** Render a card for a post id (reads the per-type summary field). */
+function cian_core_card( int $post_id ): string {
+	$type    = (string) get_post_type( $post_id );
+	$fields  = array(
+		'project'         => 'project_summary',
+		'guide'           => 'guide_summary',
+		'review'          => 'review_summary',
+		'tutorial_series' => 'series_summary',
+	);
+	$summary = isset( $fields[ $type ] ) ? (string) cian_core_field( $fields[ $type ], $post_id ) : '';
+	if ( '' === $summary ) {
+		$summary = wp_strip_all_tags( (string) get_the_excerpt( $post_id ) );
+	}
+	return cian_core_render_card_data(
+		array(
+			'type'    => $type,
+			'title'   => get_the_title( $post_id ),
+			'url'     => (string) get_permalink( $post_id ),
+			'summary' => $summary,
+			'thumb'   => (string) get_the_post_thumbnail_url( $post_id, 'medium' ),
+		)
+	);
+}
+
+/**
+ * Related-content grid for a post — pulls related ids from the relationships
+ * table (both directions), dedupes, caps, and renders published cards.
+ */
+function cian_core_render_related( int $post_id, int $limit = 8 ): string {
+	global $wpdb;
+	$table = cian_core_relationship_table();
+	$ids   = $wpdb->get_col(
+		$wpdb->prepare(
+			"SELECT to_id FROM {$table} WHERE from_id = %d UNION SELECT from_id FROM {$table} WHERE to_id = %d", // phpcs:ignore WordPress.DB
+			$post_id,
+			$post_id
+		)
+	);
+	$ids = array_slice( array_values( array_unique( array_map( 'intval', (array) $ids ) ) ), 0, $limit );
+	if ( empty( $ids ) ) {
+		return '';
+	}
+
+	$cards = '';
+	foreach ( $ids as $rid ) {
+		if ( 'publish' === get_post_status( $rid ) ) {
+			$cards .= cian_core_card( $rid );
+		}
+	}
+	return '' === $cards ? '' : '<div class="cian-related"><div class="cian-card-grid">' . $cards . '</div></div>';
+}
+
 /* -------------------------------------------------------------------------
  * Shortcode wrappers (read ACF/post data → call the pure renderer)
  * ---------------------------------------------------------------------- */
@@ -300,17 +387,17 @@ function cian_core_sc_video_facade( $atts ): string {
 	$id   = (int) $atts['id'];
 	return cian_core_render_video_facade(
 		array(
-			'yt_id'    => (string) get_field( 'video_youtube_id', $id ),
+			'yt_id'    => (string) cian_core_field( 'video_youtube_id', $id ),
 			'title'    => get_the_title( $id ),
 			'thumb'    => (string) get_the_post_thumbnail_url( $id, 'large' ),
-			'duration' => (string) get_field( 'video_duration', $id ),
+			'duration' => (string) cian_core_field( 'video_duration', $id ),
 		)
 	);
 }
 
 function cian_core_sc_chapters( $atts ): string {
 	$atts     = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'cian_chapters' );
-	$chapters = get_field( 'video_chapters', (int) $atts['id'] );
+	$chapters = cian_core_field( 'video_chapters', (int) $atts['id'] );
 	return cian_core_render_chapter_list( is_array( $chapters ) ? $chapters : array() );
 }
 
@@ -321,13 +408,13 @@ function cian_core_sc_command( $atts, $content = '' ): string {
 
 function cian_core_sc_guide_steps( $atts ): string {
 	$atts = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'cian_guide_steps' );
-	$rows = get_field( 'guide_steps', (int) $atts['id'] );
+	$rows = cian_core_field( 'guide_steps', (int) $atts['id'] );
 	return cian_core_render_guide_steps( is_array( $rows ) ? $rows : array() );
 }
 
 function cian_core_sc_guide_toc( $atts ): string {
 	$atts = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'cian_guide_toc' );
-	$rows = get_field( 'guide_steps', (int) $atts['id'] );
+	$rows = cian_core_field( 'guide_steps', (int) $atts['id'] );
 	return cian_core_render_guide_toc( is_array( $rows ) ? $rows : array() );
 }
 
@@ -335,14 +422,14 @@ function cian_core_sc_review_scores( $atts ): string {
 	$atts = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'cian_review_scores' );
 	$id   = (int) $atts['id'];
 	return cian_core_render_score_panel(
-		(float) get_field( 'review_score_overall', $id ),
+		(float) cian_core_field( 'review_score_overall', $id ),
 		array(
-			'Design'        => get_field( 'review_score_design', $id ),
-			'Features'      => get_field( 'review_score_features', $id ),
-			'Performance'   => get_field( 'review_score_performance', $id ),
-			'Ease of use'   => get_field( 'review_score_ease', $id ),
-			'Compatibility' => get_field( 'review_score_compatibility', $id ),
-			'Value'         => get_field( 'review_score_value', $id ),
+			'Design'        => cian_core_field( 'review_score_design', $id ),
+			'Features'      => cian_core_field( 'review_score_features', $id ),
+			'Performance'   => cian_core_field( 'review_score_performance', $id ),
+			'Ease of use'   => cian_core_field( 'review_score_ease', $id ),
+			'Compatibility' => cian_core_field( 'review_score_compatibility', $id ),
+			'Value'         => cian_core_field( 'review_score_value', $id ),
 		)
 	);
 }
@@ -350,13 +437,23 @@ function cian_core_sc_review_scores( $atts ): string {
 function cian_core_sc_pros_cons( $atts ): string {
 	$atts = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'cian_pros_cons' );
 	$id   = (int) $atts['id'];
-	$pros = get_field( 'review_pros', $id );
-	$cons = get_field( 'review_cons', $id );
+	$pros = cian_core_field( 'review_pros', $id );
+	$cons = cian_core_field( 'review_cons', $id );
 	return cian_core_render_pros_cons( is_array( $pros ) ? $pros : array(), is_array( $cons ) ? $cons : array() );
 }
 
 function cian_core_sc_spec_table( $atts ): string {
 	$atts  = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'cian_spec_table' );
-	$specs = get_field( 'review_specifications', (int) $atts['id'] );
+	$specs = cian_core_field( 'review_specifications', (int) $atts['id'] );
 	return cian_core_render_spec_table( is_array( $specs ) ? $specs : array() );
+}
+
+function cian_core_sc_card( $atts ): string {
+	$atts = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'cian_card' );
+	return cian_core_card( (int) $atts['id'] );
+}
+
+function cian_core_sc_related( $atts ): string {
+	$atts = shortcode_atts( array( 'id' => get_the_ID(), 'limit' => 8 ), $atts, 'cian_related' );
+	return cian_core_render_related( (int) $atts['id'], (int) $atts['limit'] );
 }

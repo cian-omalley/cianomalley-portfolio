@@ -46,7 +46,7 @@ function cian_core_schema_guide( int $id ): array {
 			'@type'         => 'TechArticle',
 			'@id'           => get_permalink( $id ) . '#techarticle',
 			'headline'      => get_the_title( $id ),
-			'description'   => (string) get_field( 'guide_summary', $id ),
+			'description'   => (string) cian_core_field( 'guide_summary', $id ),
 			'datePublished' => get_the_date( 'c', $id ),
 			'dateModified'  => get_post_modified_time( 'c', false, $id ),
 		),
@@ -57,7 +57,7 @@ function cian_core_schema_guide( int $id ): array {
 
 /** Video → VideoObject. */
 function cian_core_schema_video( int $id ): array {
-	$yt = cian_core_sanitize_youtube_id( (string) get_field( 'video_youtube_id', $id ) );
+	$yt = cian_core_sanitize_youtube_id( (string) cian_core_field( 'video_youtube_id', $id ) );
 	return array(
 		array_filter(
 			array(
@@ -75,7 +75,7 @@ function cian_core_schema_video( int $id ): array {
 
 /** Review → Review + Product. */
 function cian_core_schema_review( int $id ): array {
-	$overall = (float) get_field( 'review_score_overall', $id );
+	$overall = (float) cian_core_field( 'review_score_overall', $id );
 	return array(
 		array_filter(
 			array(
@@ -86,8 +86,8 @@ function cian_core_schema_review( int $id ): array {
 				'itemReviewed'  => array_filter(
 					array(
 						'@type' => 'Product',
-						'name'  => (string) get_field( 'review_product_name', $id ),
-						'brand' => (string) get_field( 'review_manufacturer', $id ),
+						'name'  => (string) cian_core_field( 'review_product_name', $id ),
+						'brand' => (string) cian_core_field( 'review_manufacturer', $id ),
 					)
 				),
 				'reviewRating'  => $overall > 0 ? array(

@@ -223,6 +223,20 @@ ok( 'spec table: blank spec skipped', substr_count( $spec, '<tr>' ) === 1 );
 
 ok( 'review shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_review_scores'], $GLOBALS['__shortcodes']['cian_pros_cons'], $GLOBALS['__shortcodes']['cian_spec_table'] ) );
 
+echo "\n-- card renderer --\n";
+
+$card = cian_core_render_card_data( array(
+	'type' => 'guide', 'title' => 'Self-hosting 101', 'url' => 'https://x.test/guides/sh/',
+	'summary' => 'Get started.', 'thumb' => 'https://x.test/t.jpg', 'badge' => 'Beginner',
+) );
+ok( 'card: article + type class', strpos( $card, 'cian-card--guide' ) !== false );
+ok( 'card: linked', strpos( $card, 'href="https://x.test/guides/sh/"' ) !== false );
+ok( 'card: title + summary', strpos( $card, 'Self-hosting 101' ) !== false && strpos( $card, 'Get started.' ) !== false );
+ok( 'card: badge chip', strpos( $card, 'cian-chip">Beginner' ) !== false );
+ok( 'card: lazy thumb', strpos( $card, 'loading="lazy"' ) !== false );
+ok( 'card: missing url → empty', cian_core_render_card_data( array( 'title' => 'x' ) ) === '' );
+ok( 'card/related shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_card'], $GLOBALS['__shortcodes']['cian_related'] ) );
+
 echo "\n-- youtube sync mapping --\n";
 
 ok( 'best thumbnail prefers maxres', cian_core_yt_best_thumbnail( array(
