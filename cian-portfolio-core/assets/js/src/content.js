@@ -22,7 +22,7 @@
   document.addEventListener("click", function (e) {
     var btn = e.target.closest(".cian-command__copy");
     if (!btn) return;
-    var block = btn.closest(".cian-command");
+    var block = btn.closest(".cian-command, .cian-code");
     var code = block && block.querySelector("pre code, code");
     if (!code) return;
 

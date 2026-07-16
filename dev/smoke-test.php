@@ -65,6 +65,7 @@ function shortcode_atts( $defaults, $atts, $sc = '' ) { return array_merge( $def
 function get_the_ID() { return 1; }
 function get_the_title( $id = 0 ) { return 'Test'; }
 function get_the_post_thumbnail_url( $id = 0, $s = '' ) { return ''; }
+function sanitize_title( $s ) { return trim( preg_replace( '/[^a-z0-9]+/', '-', strtolower( (string) $s ) ), '-' ); }
 
 if ( ! defined( 'ABSPATH' ) ) { define( 'ABSPATH', __DIR__ . '/' ); }
 if ( ! defined( 'MINUTE_IN_SECONDS' ) ) { define( 'MINUTE_IN_SECONDS', 60 ); }
@@ -170,6 +171,31 @@ $co = cian_core_render_callout( 'Heads up', 'warning' );
 ok( 'warning callout class', strpos( $co, 'cian-callout--warning' ) !== false );
 
 ok( 'shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_video_facade'], $GLOBALS['__shortcodes']['cian_chapters'], $GLOBALS['__shortcodes']['cian_command'] ) );
+
+echo "\n-- guide step renderer --\n";
+
+$rows = array(
+	array( 'acf_fc_layout' => 'step_section', 'title' => 'Install the tools', 'body' => '<p>Do it.</p>' ),
+	array( 'acf_fc_layout' => 'command_block', 'code' => 'apt install nginx', 'language' => 'bash' ),
+	array( 'acf_fc_layout' => 'code_block', 'code' => "server {}", 'language' => 'nginx', 'filename' => 'site.conf' ),
+	array( 'acf_fc_layout' => 'warning_callout', 'body' => 'Back up first.' ),
+	array( 'acf_fc_layout' => 'step_section', 'title' => 'Verify' ),
+	array( 'acf_fc_layout' => 'download', 'file' => array( 'url' => 'https://x.test/c.zip', 'filename' => 'c.zip' ) ),
+);
+$steps = cian_core_render_guide_steps( $rows );
+ok( 'steps: section numbered', strpos( $steps, '<span class="cian-step__n">1</span>' ) !== false );
+ok( 'steps: second section is #2', strpos( $steps, '<span class="cian-step__n">2</span>' ) !== false );
+ok( 'steps: section anchored by slug', strpos( $steps, 'id="install-the-tools"' ) !== false );
+ok( 'steps: command block rendered', strpos( $steps, 'apt install nginx' ) !== false );
+ok( 'steps: code block filename', strpos( $steps, 'site.conf' ) !== false );
+ok( 'steps: warning callout', strpos( $steps, 'cian-callout--warning' ) !== false );
+ok( 'steps: download link', strpos( $steps, 'href="https://x.test/c.zip"' ) !== false );
+
+$toc = cian_core_render_guide_toc( $rows );
+ok( 'toc: only step sections (2 links)', substr_count( $toc, '<li>' ) === 2 );
+ok( 'toc: anchors match sections', strpos( $toc, '#install-the-tools' ) !== false && strpos( $toc, '#verify' ) !== false );
+
+ok( 'guide step shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_guide_steps'], $GLOBALS['__shortcodes']['cian_guide_toc'] ) );
 
 // ---- Summary ----------------------------------------------------------------
 echo "\n";

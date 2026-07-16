@@ -25,6 +25,41 @@
 
 .cian-toc { position: sticky; top: var(--space-5); }
 
+/* Guide steps */
+.cian-step { margin-block: var(--space-6); scroll-margin-top: var(--space-6); }
+.cian-step > h2 { display: flex; align-items: center; gap: var(--space-3); }
+.cian-step__n {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.6em;
+  block-size: 1.6em;
+  border-radius: var(--radius-chip);
+  background: var(--violet-electric);
+  color: var(--white-soft);
+  font-size: 0.7em;
+}
+
+/* Code block (distinct from copyable command block) */
+.cian-code {
+  position: relative;
+  background: var(--surface-dark);
+  border: var(--border-hair);
+  border-radius: var(--radius-control);
+  overflow-x: auto;
+  margin-block: var(--space-4);
+}
+.cian-code__file {
+  display: block;
+  padding: var(--space-2) var(--space-4);
+  border-block-end: var(--border-hair);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+.cian-code pre { margin: 0; padding: var(--space-4); }
+
+.cian-download { margin-block: var(--space-2); }
+
 @media print {
   body { background: #fff; color: #111; }
   .cian-toc, .cian-panel, nav, .cian-btn { display: none !important; }

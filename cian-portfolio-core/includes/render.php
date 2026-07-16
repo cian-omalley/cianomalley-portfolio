@@ -18,6 +18,8 @@ function cian_core_module_render(): void {
 	add_shortcode( 'cian_video_facade', 'cian_core_sc_video_facade' );
 	add_shortcode( 'cian_chapters', 'cian_core_sc_chapters' );
 	add_shortcode( 'cian_command', 'cian_core_sc_command' );
+	add_shortcode( 'cian_guide_steps', 'cian_core_sc_guide_steps' );
+	add_shortcode( 'cian_guide_toc', 'cian_core_sc_guide_toc' );
 }
 
 /* -------------------------------------------------------------------------
@@ -110,6 +112,101 @@ function cian_core_render_callout( string $body, string $type = 'info' ): string
 	return sprintf( '<div class="cian-callout cian-callout--%s" role="note">%s</div>', esc_attr( $type ), wp_kses_post( $body ) );
 }
 
+/** Syntax-highlightable code block with a filename header + copy button. */
+function cian_core_render_code_block( string $code, string $lang = '', string $filename = '' ): string {
+	if ( '' === trim( $code ) ) {
+		return '';
+	}
+	$out = '<div class="cian-code">';
+	if ( '' !== $filename ) {
+		$out .= sprintf( '<span class="cian-code__file">%s</span>', esc_html( $filename ) );
+	}
+	$out .= '<button type="button" class="cian-command__copy" aria-label="Copy code">Copy</button>';
+	$out .= sprintf( '<pre><code class="language-%s">%s</code></pre>', esc_attr( $lang ), esc_html( $code ) );
+	return $out . '</div>';
+}
+
+/** Download link. Accepts an ACF file array or a plain URL string. */
+function cian_core_render_download( $file, string $label = '' ): string {
+	$url = is_array( $file ) ? (string) ( $file['url'] ?? '' ) : (string) $file;
+	if ( '' === $url ) {
+		return '';
+	}
+	if ( '' === $label ) {
+		$label = is_array( $file ) ? (string) ( $file['filename'] ?? 'Download' ) : 'Download';
+	}
+	return sprintf( '<a class="cian-download cian-btn cian-btn--ghost" href="%s" download>%s</a>', esc_url( $url ), esc_html( $label ) );
+}
+
+/** Stable anchor for a guide step (slug of title, else step-N). */
+function cian_core_guide_anchor( string $title, int $step ): string {
+	$slug = sanitize_title( $title );
+	return '' !== $slug ? $slug : 'step-' . $step;
+}
+
+/**
+ * Render the guide's flexible-content Steps field into assembled HTML.
+ *
+ * Walks ACF flexible-content rows (keyed by `acf_fc_layout`) and delegates to
+ * the component renderers. Step sections are numbered and anchored so the TOC
+ * and chapter deep-links can target them.
+ *
+ * @param array<int, array<string, mixed>> $rows
+ */
+function cian_core_render_guide_steps( array $rows ): string {
+	$out  = '';
+	$step = 0;
+	foreach ( $rows as $row ) {
+		switch ( (string) ( $row['acf_fc_layout'] ?? '' ) ) {
+			case 'step_section':
+				$step++;
+				$title  = (string) ( $row['title'] ?? '' );
+				$anchor = cian_core_guide_anchor( $title, $step );
+				$out   .= sprintf( '<section class="cian-step" id="%s">', esc_attr( $anchor ) );
+				$out   .= sprintf( '<h2><span class="cian-step__n">%d</span> %s</h2>', $step, esc_html( $title ) );
+				if ( ! empty( $row['body'] ) ) {
+					$out .= '<div class="cian-step__body">' . wp_kses_post( (string) $row['body'] ) . '</div>';
+				}
+				$out .= '</section>';
+				break;
+			case 'command_block':
+				$out .= cian_core_render_command_block( (string) ( $row['code'] ?? '' ), (string) ( $row['language'] ?? '' ), (string) ( $row['description'] ?? '' ) );
+				break;
+			case 'code_block':
+				$out .= cian_core_render_code_block( (string) ( $row['code'] ?? '' ), (string) ( $row['language'] ?? '' ), (string) ( $row['filename'] ?? '' ) );
+				break;
+			case 'info_callout':
+				$out .= cian_core_render_callout( (string) ( $row['body'] ?? '' ), 'info' );
+				break;
+			case 'warning_callout':
+				$out .= cian_core_render_callout( (string) ( $row['body'] ?? '' ), 'warning' );
+				break;
+			case 'download':
+				$out .= cian_core_render_download( $row['file'] ?? '', (string) ( $row['label'] ?? '' ) );
+				break;
+		}
+	}
+	return $out;
+}
+
+/** Table of contents built from the guide's step-section titles. */
+function cian_core_render_guide_toc( array $rows ): string {
+	$items = '';
+	$step  = 0;
+	foreach ( $rows as $row ) {
+		if ( 'step_section' !== (string) ( $row['acf_fc_layout'] ?? '' ) ) {
+			continue;
+		}
+		$step++;
+		$title = (string) ( $row['title'] ?? '' );
+		if ( '' === $title ) {
+			continue;
+		}
+		$items .= sprintf( '<li><a href="#%s">%s</a></li>', esc_attr( cian_core_guide_anchor( $title, $step ) ), esc_html( $title ) );
+	}
+	return '' === $items ? '' : '<nav class="cian-toc" aria-label="On this page"><ol>' . $items . '</ol></nav>';
+}
+
 /* -------------------------------------------------------------------------
  * Shortcode wrappers (read ACF/post data → call the pure renderer)
  * ---------------------------------------------------------------------- */
@@ -136,4 +233,16 @@ function cian_core_sc_chapters( $atts ): string {
 function cian_core_sc_command( $atts, $content = '' ): string {
 	$atts = shortcode_atts( array( 'lang' => '', 'note' => '' ), $atts, 'cian_command' );
 	return cian_core_render_command_block( (string) $content, (string) $atts['lang'], (string) $atts['note'] );
+}
+
+function cian_core_sc_guide_steps( $atts ): string {
+	$atts = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'cian_guide_steps' );
+	$rows = get_field( 'guide_steps', (int) $atts['id'] );
+	return cian_core_render_guide_steps( is_array( $rows ) ? $rows : array() );
+}
+
+function cian_core_sc_guide_toc( $atts ): string {
+	$atts = shortcode_atts( array( 'id' => get_the_ID() ), $atts, 'cian_guide_toc' );
+	$rows = get_field( 'guide_steps', (int) $atts['id'] );
+	return cian_core_render_guide_toc( is_array( $rows ) ? $rows : array() );
 }
