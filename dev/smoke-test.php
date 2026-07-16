@@ -223,6 +223,20 @@ ok( 'spec table: blank spec skipped', substr_count( $spec, '<tr>' ) === 1 );
 
 ok( 'review shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_review_scores'], $GLOBALS['__shortcodes']['cian_pros_cons'], $GLOBALS['__shortcodes']['cian_spec_table'] ) );
 
+echo "\n-- card renderer --\n";
+
+$card = cian_core_render_card_data( array(
+	'type' => 'guide', 'title' => 'Self-hosting 101', 'url' => 'https://x.test/guides/sh/',
+	'summary' => 'Get started.', 'thumb' => 'https://x.test/t.jpg', 'badge' => 'Beginner',
+) );
+ok( 'card: article + type class', strpos( $card, 'cian-card--guide' ) !== false );
+ok( 'card: linked', strpos( $card, 'href="https://x.test/guides/sh/"' ) !== false );
+ok( 'card: title + summary', strpos( $card, 'Self-hosting 101' ) !== false && strpos( $card, 'Get started.' ) !== false );
+ok( 'card: badge chip', strpos( $card, 'cian-chip">Beginner' ) !== false );
+ok( 'card: lazy thumb', strpos( $card, 'loading="lazy"' ) !== false );
+ok( 'card: missing url → empty', cian_core_render_card_data( array( 'title' => 'x' ) ) === '' );
+ok( 'card/related shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_card'], $GLOBALS['__shortcodes']['cian_related'] ) );
+
 echo "\n-- youtube sync mapping --\n";
 
 ok( 'best thumbnail prefers maxres', cian_core_yt_best_thumbnail( array(
@@ -255,6 +269,13 @@ ok( 'map: thumbnail', $m['thumbnail'] === 'h.jpg' );
 ok( 'map: privacy', $m['privacy'] === 'public' );
 ok( 'map: not live', $m['is_live'] === false );
 ok( 'map: invalid id → empty', cian_core_yt_map_video( array( 'id' => 'bad' ) )['youtube_id'] === '' );
+
+$map = array( 'wordpress' => 12, 'oxygen builder' => 34 );
+$mt  = cian_core_match_terms_by_name( array( 'WordPress', 'Oxygen Builder', 'random tag', '  ' ), $map );
+ok( 'tag match: matched ids', $mt['matched'] === array( 12, 34 ) );
+ok( 'tag match: unmatched preserved', $mt['unmatched'] === array( 'random tag' ) );
+ok( 'tag match: case-insensitive', cian_core_match_terms_by_name( array( 'WORDPRESS' ), $map )['matched'] === array( 12 ) );
+ok( 'tag match: dedupes', cian_core_match_terms_by_name( array( 'WordPress', 'wordpress' ), $map )['matched'] === array( 12 ) );
 
 // ---- Summary ----------------------------------------------------------------
 echo "\n";

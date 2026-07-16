@@ -96,10 +96,10 @@ function cian_core_world_beacons(): array {
 		static function ( WP_Post $p ): array {
 			return array(
 				'id'      => (int) $p->ID,
-				'title'   => get_field( 'project_short_title', $p->ID ) ?: get_the_title( $p ),
-				'summary' => (string) get_field( 'project_summary', $p->ID ),
-				'accent'  => (string) get_field( 'project_accent_color', $p->ID ),
-				'object'  => (string) get_field( 'project_object_id', $p->ID ),
+				'title'   => cian_core_field( 'project_short_title', $p->ID ) ?: get_the_title( $p ),
+				'summary' => (string) cian_core_field( 'project_summary', $p->ID ),
+				'accent'  => (string) cian_core_field( 'project_accent_color', $p->ID ),
+				'object'  => (string) cian_core_field( 'project_object_id', $p->ID ),
 				'url'     => get_permalink( $p ),
 			);
 		},

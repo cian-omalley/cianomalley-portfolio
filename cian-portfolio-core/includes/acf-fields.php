@@ -46,6 +46,22 @@ function cian_core_module_acf_fields(): void {
 	add_action( 'admin_notices', 'cian_core_acf_missing_notice' );
 }
 
+/**
+ * Safe field accessor. Returns $default when ACF is not active (so the plugin
+ * degrades gracefully without ACF Pro, per docs/plan/12 §35) or the field is
+ * empty. Use this instead of get_field() in frontend/render code.
+ *
+ * @param int|string|false $post_id
+ * @return mixed
+ */
+function cian_core_field( string $name, $post_id = false, $default = '' ) {
+	if ( ! function_exists( 'get_field' ) ) {
+		return $default;
+	}
+	$value = get_field( $name, $post_id );
+	return ( null === $value || false === $value || '' === $value ) ? $default : $value;
+}
+
 function cian_core_acf_missing_notice(): void {
 	if ( function_exists( 'acf_add_local_field_group' ) || ! current_user_can( 'activate_plugins' ) ) {
 		return;
