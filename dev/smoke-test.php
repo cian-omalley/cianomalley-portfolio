@@ -57,6 +57,14 @@ function get_transient( $k ) { return false; }
 function set_transient( $k, $v, $ttl = 0 ) { return true; }
 function delete_transient( $k ) { return true; }
 function current_user_can( $c ) { return true; }
+function esc_attr( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function wp_kses_post( $s ) { return (string) $s; }
+function add_shortcode( $tag, $cb ) { $GLOBALS['__shortcodes'][ $tag ] = $cb; }
+function shortcode_atts( $defaults, $atts, $sc = '' ) { return array_merge( $defaults, (array) $atts ); }
+function get_the_ID() { return 1; }
+function get_the_title( $id = 0 ) { return 'Test'; }
+function get_the_post_thumbnail_url( $id = 0, $s = '' ) { return ''; }
 
 if ( ! defined( 'ABSPATH' ) ) { define( 'ABSPATH', __DIR__ . '/' ); }
 if ( ! defined( 'MINUTE_IN_SECONDS' ) ) { define( 'MINUTE_IN_SECONDS', 60 ); }
@@ -140,6 +148,28 @@ ok( 'ISO duration PT45S → 00:00:45', cian_core_yt_duration( 'PT45S' ) === '00:
 
 ok( 'youtube id valid passes', cian_core_sanitize_youtube_id( 'dQw4w9WgXcQ' ) === 'dQw4w9WgXcQ' );
 ok( 'youtube id invalid rejected', cian_core_sanitize_youtube_id( 'nope' ) === '' );
+
+echo "\n-- render components --\n";
+
+$facade = cian_core_render_video_facade( array( 'yt_id' => 'dQw4w9WgXcQ', 'title' => 'Demo', 'duration' => '12:34' ) );
+ok( 'facade carries data-yt-id', strpos( $facade, 'data-yt-id="dQw4w9WgXcQ"' ) !== false );
+ok( 'facade emits NO iframe (consent-safe)', stripos( $facade, '<iframe' ) === false );
+ok( 'facade emits NO youtube request', stripos( $facade, 'youtube' ) === false );
+ok( 'facade is a real button', strpos( $facade, '<button' ) !== false );
+ok( 'facade with no source is empty', cian_core_render_video_facade( array() ) === '' );
+
+$cl = cian_core_render_chapter_list( array( array( 'start' => '1:30', 'title' => 'Setup' ) ) );
+ok( 'chapter list seconds in data-start', strpos( $cl, 'data-start="90"' ) !== false );
+ok( 'chapter list escapes title', strpos( $cl, 'Setup' ) !== false );
+
+$cb = cian_core_render_command_block( 'rm -rf /tmp/x', 'bash', 'careful' );
+ok( 'command block has copy button', strpos( $cb, 'cian-command__copy' ) !== false );
+ok( 'command block escapes code', strpos( $cb, 'rm -rf /tmp/x' ) !== false );
+
+$co = cian_core_render_callout( 'Heads up', 'warning' );
+ok( 'warning callout class', strpos( $co, 'cian-callout--warning' ) !== false );
+
+ok( 'shortcodes registered', isset( $GLOBALS['__shortcodes']['cian_video_facade'], $GLOBALS['__shortcodes']['cian_chapters'], $GLOBALS['__shortcodes']['cian_command'] ) );
 
 // ---- Summary ----------------------------------------------------------------
 echo "\n";

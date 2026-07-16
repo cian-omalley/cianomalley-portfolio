@@ -36,6 +36,7 @@ final class Cian_Core {
 		'acf_fields'      => 'acf-fields.php',
 		'relationships'   => 'relationships.php',
 		'assets'          => 'assets.php',
+		'render'          => 'render.php',
 		'rest_api'        => 'rest-api.php',
 		'youtube_api'     => 'youtube-api.php',
 		'youtube_sync'    => 'youtube-sync.php',
