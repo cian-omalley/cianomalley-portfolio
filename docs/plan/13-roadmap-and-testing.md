@@ -98,7 +98,7 @@ Each phase lists objectives, tasks, deliverables, dependencies, risks, acceptanc
 ### Phase 11 — Testing & Launch (≈1 week)
 
 - **Objectives:** verified production go-live.
-- **Tasks:** full §38 matrix execution; cross-device pass; SEO/schema validation; security review (headers, uploads, rate limits, 2FA); backup + restore validation; DNS cutover (`cianomalley.dev` live, `.works` docs surface); post-launch monitoring week (uptime, sync cron, 404s, CWV field data).
+- **Tasks:** full §38 matrix execution; cross-device pass; SEO/schema validation; security review (headers, uploads, rate limits, 2FA); backup + restore validation; DNS cutover (`cianomalley.works` portfolio live; `cianomalley.dev` reserved for showcase projects/demos); post-launch monitoring week (uptime, sync cron, 404s, CWV field data).
 - **Deliverables:** launch; test report; post-launch checklist (Part 14 §43).
 - **Acceptance:** production green on the full matrix; rollback plan documented and tested (restore from backup).
 

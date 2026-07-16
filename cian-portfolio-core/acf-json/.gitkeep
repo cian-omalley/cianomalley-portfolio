@@ -1,0 +1,4 @@
+# ACF field groups (JSON) are auto-saved here by acf-fields.php.
+# On staging: edit field groups in the ACF UI → they export to this folder →
+# commit. Field groups defined in docs/plan/03 §8. This directory is the
+# version-controlled source of truth for the field model.

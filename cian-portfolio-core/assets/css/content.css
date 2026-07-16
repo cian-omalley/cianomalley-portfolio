@@ -1,0 +1,31 @@
+/*
+ * Reading mode (docs/plan/06 §21). Loaded ONLY on guide/article singles.
+ * Comfortable measure, no animated backgrounds behind long text.
+ */
+
+.cian-reading {
+  max-width: var(--measure-reading);
+  margin-inline: auto;
+}
+.cian-reading p, .cian-reading li { font-size: 1.0625rem; line-height: 1.75; }
+
+.cian-command {
+  position: relative;
+  background: var(--surface-dark);
+  border: var(--border-hair);
+  border-radius: var(--radius-control);
+  padding: var(--space-4);
+  overflow-x: auto;
+}
+.cian-command__copy {
+  position: absolute;
+  top: var(--space-2);
+  inset-inline-end: var(--space-2);
+}
+
+.cian-toc { position: sticky; top: var(--space-5); }
+
+@media print {
+  body { background: #fff; color: #111; }
+  .cian-toc, .cian-panel, nav, .cian-btn { display: none !important; }
+}

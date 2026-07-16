@@ -132,13 +132,13 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    DEV["Local dev (wp-env/DDEV)<br/>plugin in git"] --> STG["Staging: staging.cianomalley.dev<br/>separate DB, basic-auth, noindex"]
+    DEV["Local dev (wp-env/DDEV)<br/>plugin in git"] --> STG["Staging: staging.cianomalley.works<br/>separate DB, basic-auth, noindex"]
     STG -->|"tested promote:<br/>plugin via git tag, templates via export/migrate"| PROD["Production VPS (Hetzner)<br/>Nginx + PHP-FPM 8.3 + MariaDB + Redis"]
     CF["Cloudflare<br/>DNS + CDN + WAF + SSL"] --> PROD
     U["Visitors"] --> CF
     YTA["YouTube Data API"] --> PROD
     PROD --> BK["Nightly offsite backups<br/>(DB + uploads + design exports)"]
-    WORKS["cianomalley.works<br/>(docs/CV, same origin or static)"] --> CF
+    DEVDOMAIN["cianomalley.dev<br/>(small showcase projects / demos)"] --> CF
 ```
 
 ---

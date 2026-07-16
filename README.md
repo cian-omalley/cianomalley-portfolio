@@ -11,7 +11,7 @@
 [![Video](https://img.shields.io/badge/video-YouTube_Data_API-FF0000?style=flat-square&logo=youtube&logoColor=white)](docs/plan/04-youtube-and-video-system.md)
 [![A11y](https://img.shields.io/badge/accessibility-WCAG_2.2_AA-22D3EE?style=flat-square)](docs/plan/10-accessibility-responsive-performance.md)
 
-**Primary domain** `cianomalley.dev` &nbsp;·&nbsp; **Document domain** `cianomalley.works`
+**Primary portfolio** `cianomalley.works` &nbsp;·&nbsp; **Showcase projects & demos** `cianomalley.dev`
 
 </div>
 
@@ -30,13 +30,14 @@
 - [Guiding principles](#guiding-principles)
 - [Repository structure](#repository-structure)
 - [The master plan](#the-master-plan)
-- [Foundation & validation](#foundation--validation)
+- [The plugin](#the-plugin)
+- [Working in this repo](#working-in-this-repo)
 
 ---
 
 ## What is being built
 
-This repository contains the plan and foundation for **Cian O'Malley's portfolio and technical-content platform** — one site that serves two jobs at once:
+This repository contains the master plan and the site-specific WordPress plugin for **Cian O'Malley's portfolio and technical-content platform** — one site that serves two jobs at once:
 
 **1. A portfolio that proves the work.**
 Project case studies (AI Operating System, Self-Hosted Knowledge Hub, this portfolio itself, Tactical Streaming Interface, Home Server Platform, AI Research Workspace) presented so that a recruiter understands *who Cian is, what he builds, which technologies he uses, where the strongest projects are, and how to contact him* — within 30 seconds of arriving.
@@ -221,7 +222,7 @@ timeline
     title Implementation phases (0–11)
     section Foundations
         Phase 0-1 : Discovery & architecture : confirm licenses, hosting, channel, projects : freeze content model & builder ownership
-        Phase 2-3 : Design system & WP foundation : tokens, typography, motion rules : VPS, staging, plugin skeleton, backups
+        Phase 2-3 : Design system & WP foundation : tokens, typography, motion rules : self-hosted server, staging, plugin skeleton, backups
     section Content platform
         Phase 4 : Core content system : all CPT templates, guides, reviews, search
         Phase 5 : YouTube integration : sync, dashboard, playlist import
@@ -255,15 +256,19 @@ Priority order for every trade-off: **professional clarity → easy navigation �
 ```text
 cianomalley-portfolio/
 ├── docs/
-│   ├── assets/            ← README artwork (banner, district map, palette)
-│   ├── plan/              ← 📘 the 44-section master plan (14 parts + index)
-│   ├── CONTENT_MODEL.md   ← foundation content-model notes
-│   └── SETUP.md           ← foundation setup guide
-├── src/
-│   ├── components/        ← CyberpunkCityHero.jsx (foundation prototype)
-│   └── data/              ← navigation & portfolio content models (JSON)
-├── tests/                 ← foundation validation tests
-└── package.json
+│   ├── assets/               ← README artwork (banner, district map, palette)
+│   ├── plan/                 ← 📘 the 44-section master plan (14 parts + index)
+│   └── discovery.md          ← Phase 0 confirmed decisions (input contract)
+├── cian-portfolio-core/      ← 🔌 site-specific WordPress plugin
+│   ├── cian-portfolio-core.php   ← bootstrap + module registry
+│   ├── includes/             ← post-types, taxonomies, relationships, YouTube,
+│   │                            transcripts, chapters, REST, SEO, security, privacy
+│   ├── assets/css/           ← tokens, base, components, content, video, a11y
+│   ├── assets/js/src/        ← loader, world, menu, player, chapters, transcripts
+│   ├── acf-json/             ← version-controlled ACF field groups
+│   └── cli/                  ← wp cian youtube <subcommand>
+├── .claude/                  ← project agents, skills, settings (Claude Code)
+└── CLAUDE.md                 ← project brief for Claude Code sessions
 ```
 
 ---
@@ -291,18 +296,30 @@ The complete 44-section design, technical, content, and implementation plan live
 
 ---
 
-## Foundation & validation
+## The plugin
 
-The repo currently contains an early prototype foundation (content-model JSON, an example hero component, and tests):
+[`cian-portfolio-core/`](cian-portfolio-core/README.md) is the site-specific WordPress plugin that owns everything a page builder should not: post types, taxonomies, ACF registration, cross-content relationships, YouTube synchronization, transcripts, chapters, the REST API that feeds the 3D world, structured data, security, privacy/consent, the builder-independent design tokens, and all custom JS/CSS.
+
+**Status:** Phase 3 scaffold — the content model registers and activates; YouTube sync, transcript editing, and the Three.js scene are stubbed with documented contracts and land in Phases 4–7. Requires WordPress ≥ 6.5, PHP ≥ 8.1, and ACF Pro. Credentials (`CIAN_YT_*`) live only in `wp-config.php`.
+
+## Working in this repo
+
+This repo holds planning docs and the plugin source; the WordPress install lives on the server. To sanity-check the plugin locally:
 
 ```bash
-npm test
+# PHP syntax on every plugin file
+find cian-portfolio-core -name '*.php' -print0 | xargs -0 -n1 php -l
+
+# JS syntax on every module
+for f in cian-portfolio-core/assets/js/src/*.js; do node --check "$f"; done
 ```
+
+Claude Code sessions have project agents (`wp-plugin-reviewer`, `docs-writer`) and skills (`/plugin-check`, `/caveman`) configured under `.claude/`; see [`CLAUDE.md`](CLAUDE.md).
 
 ---
 
 <div align="center">
 
-**Built for `cianomalley.dev`** · documents at `cianomalley.works` · planned & documented in [`docs/plan/`](docs/plan/README.md)
+**Portfolio at `cianomalley.works`** · showcase projects at `cianomalley.dev` · planned in [`docs/plan/`](docs/plan/README.md)
 
 </div>
