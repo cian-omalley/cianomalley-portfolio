@@ -1,0 +1,14 @@
+{
+  "districts": [
+    { "id": "arrival", "label": "Arrival Platform", "url": "/" },
+    { "id": "projects", "label": "Project Sector", "url": "/projects/" },
+    { "id": "knowledge", "label": "Knowledge Archive", "url": "/guides/" },
+    { "id": "studio", "label": "Tutorial Studio", "url": "/videos/" },
+    { "id": "lab", "label": "Review Laboratory", "url": "/reviews/" },
+    { "id": "identity", "label": "Identity Chamber", "url": "/about/" },
+    { "id": "relay", "label": "Communications Relay", "url": "/contact/" },
+    { "id": "experimental", "label": "Experimental Sector", "url": "/lab/" }
+  ],
+  "beacons": [],
+  "generated": "2026-07-17T00:00:00Z"
+}

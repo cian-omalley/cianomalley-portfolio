@@ -53,6 +53,16 @@ php dev/smoke-test.php
 
 Loads the plugin with minimal WordPress stubs, boots the module registry, fires `init` + `rest_api_init`, and asserts every post type / taxonomy / REST route registers — then unit-tests the VTT, chapter, timestamp, and ISO-8601 duration parsers. This is the CI-friendly check that runs anywhere PHP is installed.
 
+## World bundle (Three.js scene)
+
+The Digital District scene is built from `cian-portfolio-core/assets/js/src/world.js` (+ `world/` modules) with Vite:
+
+```bash
+cd cian-portfolio-core && npm install && npm run build   # → assets/js/dist/world.js (committed)
+```
+
+Manual runtime check: serve the repo root (`php -S 127.0.0.1:8095`) and open `/dev/world-test.html` — the procedural mini-city should render with 8 labeled hotspot buttons; clicking one glides the camera to that district, clicking it again navigates to its URL. `dev/world-test.json` is the mock REST payload.
+
 ## Restricted networks
 
 If your environment blocks Docker Hub, the image pulls in `docker-compose.yml` will fail — point them at an allowed registry mirror, or use the smoke test, which needs no images.

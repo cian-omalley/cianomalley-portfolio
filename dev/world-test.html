@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Digital District — world bundle test</title>
+<style>
+  body { margin: 0; background: #040805; color: #F5F7FA; font-family: system-ui, sans-serif; }
+  #district-root { width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<!-- Runtime test harness for assets/js/dist/world.js (see dev/README.md).
+     Serve the repo root (e.g. `php -S 127.0.0.1:8095`) and open
+     /dev/world-test.html — the bundle should render the mini-city with 8
+     labeled hotspot buttons. Used by the automated headless check. -->
+<div id="district-root"></div>
+<script type="module">
+  import { initDistrict } from "../cian-portfolio-core/assets/js/dist/world.js";
+  initDistrict({ endpoint: "./world-test.json" }).then(() => {
+    window.__worldReady = true;
+  }).catch((e) => {
+    window.__worldError = String(e && e.message || e);
+  });
+</script>
+</body>
+</html>

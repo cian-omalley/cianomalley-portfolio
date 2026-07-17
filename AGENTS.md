@@ -44,8 +44,8 @@ The live WordPress install itself is **not** in this repo — it lives on the ow
 | Render layer: guide steps+TOC, video facade/chapters, review scores/pros-cons/specs, cards, related | ✅ built as shortcodes + tested |
 | Design tokens + CSS + JS modules | ✅ built |
 | Degrades without ACF | ✅ fixed + verified (`cian_core_field()`) |
+| **Three.js scene (v1)** | ✅ built + runtime-verified in headless Chromium: procedural dense mini-city, 8 street-level camera nodes, DOM hotspots, reduced-motion cuts, on-demand rendering. Source `assets/js/src/world*`, built by Vite (`npm run build` in `cian-portfolio-core/`) to the committed `assets/js/dist/world.js` (~133 KB gzip; budget 250 KB). Test harness: `dev/world-test.html` |
 | **Oxygen templates** | ⏳ **not built** — done in the Oxygen UI on the owner's install (see `docs/oxygen-templates.md`) |
-| **Three.js scene** | ⏳ not built (stubs + contract in `assets/js/src/world.js`, `loader.js`) |
 | **Live site / hosting** | ⏳ owner's task (aaPanel home server) |
 
 ## 4. Architecture contract (non-negotiable)
@@ -94,7 +94,7 @@ Repo-authorable (an agent can do these):
 2. **Thumbnail sideloading in sync** — `media_sideload_image` the YouTube thumb, set as featured image. *Accept:* featured image set on synced videos; failures logged, not fatal.
 3. **Review `positiveNotes`/`negativeNotes` schema** — extend `seo.php` `Review` from pros/cons. *Accept:* valid JSON-LD; single-emitter rule kept.
 4. **HowTo + VideoObject in guide schema** — assemble the `@graph` when a guide has steps/video. *Accept:* passes Google Rich Results test shapes.
-5. **Three.js scene** (`assets/js/src/world.js`) — dense street-level mini-city, DOM hotspots, no visible edges, full fallback. *Accept:* lazy-loads only when eligible; site complete without it; budgets in `docs/plan/10 §31`.
+5. **Three.js scene v2 polish** — v1 (procedural city) is built and runtime-verified; remaining: ambient Tier-2 motion at balanced/high, GLB detail chunks replacing procedural blocks, Phase-8 beacon binding to REST data. *Accept:* budgets in `docs/plan/10 §31` hold; `node world-check.mjs`-style runtime checks stay green.
 
 Owner / live-environment tasks (an agent cannot do these — surface them, don't fake them):
 

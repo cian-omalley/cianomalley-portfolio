@@ -1,0 +1,14 @@
+{
+  "name": "cian-portfolio-core-world",
+  "private": true,
+  "description": "Build tooling for the Digital District world bundle (assets/js/src/world.js -> assets/js/dist/world.js). The WordPress plugin itself has no runtime Node dependency.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "check": "node --check assets/js/src/world.js"
+  },
+  "devDependencies": {
+    "three": "^0.170.0",
+    "vite": "^6.0.0"
+  }
+}
