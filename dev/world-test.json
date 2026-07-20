@@ -9,6 +9,10 @@
     { "id": "relay", "label": "Communications Relay", "url": "/contact/" },
     { "id": "experimental", "label": "Experimental Sector", "url": "/lab/" }
   ],
-  "beacons": [],
+  "beacons": [
+    { "id": 101, "title": "AI Operating System", "accent": "violet-electric", "object": "ai-os", "url": "/projects/ai-os/" },
+    { "id": 102, "title": "Self-Hosted Knowledge Hub", "accent": "cyan-signal", "object": "knowledge-hub", "url": "/projects/knowledge-hub/" },
+    { "id": 103, "title": "Home Server Platform", "accent": "silver-moon", "object": "home-server", "url": "/projects/home-server/" }
+  ],
   "generated": "2026-07-17T00:00:00Z"
 }

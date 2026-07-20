@@ -51,11 +51,23 @@ function makeWindowTexture(rand, accent) {
   return tex;
 }
 
+/** Accent token name → hex (docs/plan/06 §18). Falls back to violet. */
+const ACCENT_HEX = {
+  "violet-electric": 0x7c3aed,
+  "silver-moon": 0xc8cdd8,
+  "cyan-signal": 0x22d3ee,
+  "purple-deep": 0x3a006f,
+};
+
 /**
  * Build the city into a fresh scene.
- * @returns {{scene: THREE.Scene, anchors: Map<string, THREE.Vector3>}}
+ * @param {string[]} districtIds
+ * @param {Array<{id:number, accent?:string, object?:string}>} beacons Featured
+ *        projects from cian/v1/world (Phase 8) — rendered as glowing markers
+ *        clustered by the Project Sector landmark.
+ * @returns {{scene: THREE.Scene, anchors: Map<string, THREE.Vector3>, beacons: Array}}
  */
-export function buildCity(districtIds) {
+export function buildCity(districtIds, beacons = []) {
   const rand = mulberry32(40805);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(VOID_BG);
@@ -162,5 +174,32 @@ export function buildCity(districtIds) {
   beacon.position.set(0, 4.5, 0);
   scene.add(beacon);
 
-  return { scene, anchors };
+  // Featured-project beacons (Phase 8): small glowing markers clustered in
+  // front of the Project Sector landmark, in each project's accent color.
+  // Positions are returned so the caller can attach DOM hotspots to them.
+  const beaconAnchor = anchors.get("projects") || new THREE.Vector3(0, 3, -24);
+  const placed = [];
+  const beaconGeo = new THREE.OctahedronGeometry(0.6);
+  beacons.slice(0, 8).forEach((b, i) => {
+    const color = ACCENT_HEX[b.accent] ?? ACCENT_HEX["violet-electric"];
+    const marker = new THREE.Mesh(
+      beaconGeo,
+      new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.9 })
+    );
+    marker.name = "beacon";
+    // fan out along the street in front of the landmark
+    const spread = (i - (beacons.length - 1) / 2) * 2.2;
+    const dir = beaconAnchor.clone().setY(0).normalize();
+    const perp = new THREE.Vector3(-dir.z, 0, dir.x);
+    const pos = beaconAnchor
+      .clone()
+      .setY(2.2)
+      .add(dir.clone().multiplyScalar(-7))
+      .add(perp.multiplyScalar(spread));
+    marker.position.copy(pos);
+    scene.add(marker);
+    placed.push({ id: b.id, object: b.object || "", position: pos });
+  });
+
+  return { scene, anchors, beacons: placed };
 }
