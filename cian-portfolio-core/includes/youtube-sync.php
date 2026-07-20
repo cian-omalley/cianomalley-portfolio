@@ -261,9 +261,44 @@ function cian_core_sync_upsert_video( array $m, bool $dry_run = false ) {
 		cian_core_yt_assign_tags( $id, (array) $m['tags'] );
 	}
 
-	// Thumbnail sideloading is deferred to the admin import flow (media
-	// sideload + featured-image set).
+	// Cache the thumbnail locally as the featured image (docs/plan/04 §9 —
+	// the frontend never hotlinks i.ytimg.com). Failures log, never fatal.
+	if ( ! empty( $m['thumbnail'] ) ) {
+		cian_core_sideload_thumbnail( $id, (string) $m['thumbnail'] );
+	}
+
 	return array( 'id' => $id, 'action' => $action );
+}
+
+/**
+ * Sideload a video thumbnail into the media library and set it as the post's
+ * featured image. Skips when the same source URL is already cached (stored in
+ * meta), so repeat syncs don't re-download. Failures are flagged in meta for
+ * the attention queue — never fatal.
+ */
+function cian_core_sideload_thumbnail( int $post_id, string $url ): bool {
+	$url = esc_url_raw( $url );
+	if ( '' === $url ) {
+		return false;
+	}
+	if ( get_post_meta( $post_id, 'video_thumb_source', true ) === $url && has_post_thumbnail( $post_id ) ) {
+		return true; // already cached from this exact source
+	}
+
+	require_once ABSPATH . 'wp-admin/includes/media.php';
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+
+	$attachment_id = media_sideload_image( $url, $post_id, get_the_title( $post_id ), 'id' );
+	if ( is_wp_error( $attachment_id ) ) {
+		update_post_meta( $post_id, 'video_thumb_error', $attachment_id->get_error_message() );
+		return false;
+	}
+
+	set_post_thumbnail( $post_id, (int) $attachment_id );
+	update_post_meta( $post_id, 'video_thumb_source', $url );
+	delete_post_meta( $post_id, 'video_thumb_error' );
+	return true;
 }
 
 /** channels.list → the channel's uploads playlist id. */

@@ -91,7 +91,7 @@ When you add a pure function, add a case to `dev/smoke-test.php`. When you touch
 Repo-authorable (an agent can do these):
 
 1. **Transcript admin metabox** — edit segments + status on the video screen. *Accept:* saves to `wp_cian_transcript_segments`; status workflow enforced; verified via `wp eval`.
-2. **Thumbnail sideloading in sync** — `media_sideload_image` the YouTube thumb, set as featured image. *Accept:* featured image set on synced videos; failures logged, not fatal.
+2. ~~**Thumbnail sideloading in sync**~~ ✅ done (`cian_core_sideload_thumbnail`): caches the YouTube thumb locally as the featured image, idempotent per source URL, failures flagged not fatal. Verified in real WordPress.
 3. **Review `positiveNotes`/`negativeNotes` schema** — extend `seo.php` `Review` from pros/cons. *Accept:* valid JSON-LD; single-emitter rule kept.
 4. **HowTo + VideoObject in guide schema** — assemble the `@graph` when a guide has steps/video. *Accept:* passes Google Rich Results test shapes.
 5. **Three.js scene v2 polish** — v1 (procedural city) is built and runtime-verified; remaining: ambient Tier-2 motion at balanced/high, GLB detail chunks replacing procedural blocks, Phase-8 beacon binding to REST data. *Accept:* budgets in `docs/plan/10 §31` hold; `node world-check.mjs`-style runtime checks stay green.
