@@ -145,3 +145,7 @@ vite.config.ts.timestamp-*
 # Local-only drop-in plugins (e.g. ACF Pro) — keep the README
 dev/plugins/*
 !dev/plugins/README.md
+
+# The world bundle IS committed (docs/plan/07 §23) — un-ignore it
+!cian-portfolio-core/assets/js/dist/
+!cian-portfolio-core/assets/js/dist/world.js
