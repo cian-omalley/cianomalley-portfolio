@@ -43,6 +43,7 @@ export async function initDistrict(cfg = {}) {
 
   // 1. Content (cached REST payload; fall back to the static registry).
   let districts = DEFAULT_DISTRICTS;
+  let beacons = [];
   if (cfg.endpoint) {
     try {
       const res = await fetch(cfg.endpoint, { credentials: "omit" });
@@ -50,13 +51,16 @@ export async function initDistrict(cfg = {}) {
       if (Array.isArray(data.districts) && data.districts.length) {
         districts = data.districts;
       }
+      if (Array.isArray(data.beacons)) {
+        beacons = data.beacons;
+      }
     } catch (e) {
       /* offline/API-down: static labels still navigate correctly */
     }
   }
 
   // 2. Scene + renderer.
-  const { scene, anchors } = buildCity(districts.map((d) => d.id));
+  const { scene, anchors } = buildCity(districts.map((d) => d.id), beacons);
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(pixelRatioFor("automatic"));
   renderer.setSize(root.clientWidth, root.clientHeight || 480);
